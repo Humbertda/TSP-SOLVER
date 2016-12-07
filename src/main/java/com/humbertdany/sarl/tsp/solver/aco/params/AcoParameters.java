@@ -4,6 +4,11 @@ import com.humbertdany.sarl.tsp.core.params.AApplicationParameters;
 
 public class AcoParameters extends AApplicationParameters {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3291340246882818235L;
+	
 	private Integer omega;
 	private Boolean isChecked;
 

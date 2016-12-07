@@ -1,0 +1,19 @@
+package com.humbertdany.sarl.tsp.solver.aco.sarl
+
+import io.sarl.core.Logging
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Schedules
+
+agent Launcher {
+	
+	uses Logging, Lifecycle, Schedules
+
+	var i : int = 0;
+
+	on Initialize {
+		info("1: Hello World in the super agent!")
+		killMe
+	}
+	
+}

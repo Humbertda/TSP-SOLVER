@@ -5,6 +5,11 @@ import java.util.ArrayList;
 
 abstract public class AApplicationParameters implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 739098287906647771L;
+	
 	final private ArrayList<ApplicationParametersObserver> observers = new ArrayList<>();
 
 	final public void watchParametersChange(final ApplicationParametersObserver observer){

@@ -1,6 +1,5 @@
 package com.humbertdany.sarl.tsp.ui;
 
-import com.humbertdany.sarl.tsp.core.params.AApplicationParameters;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
@@ -82,7 +81,7 @@ public class Controller {
 		 * @param arg String
 		 */
 		void sendNewMap(final String arg){
-			final AApplicationParameters params = solver.getParameters();
+			// final AApplicationParameters params = solver.getParameters();
 			for(String s : callbacks){
 				webEngine.executeScript(s + "('" + arg +"')");
 			}
