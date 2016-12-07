@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            border:0;
+            padding:0;
+        }
+        .background {
+            fill: none;
+            pointer-events: all;
+        }
+        #states {
+            fill: #aaa;
+            stroke: #fff;
+            stroke-width: 1px;
+        }
+        #states .active {
+            fill: orange;
+        }
+        path.connection {
+            stroke: blue;
+            stroke-width: 1px;
+            fill: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map">
+    <section id="tsp">
+    </section>
+</div>
+
+<script src="d3.min.js" type="application/javascript"></script>
+<script src="underscore.min.js" type="application/javascript"></script>
+<script src="tsp.js" type="application/javascript"></script>
+<script>
+
+    //   NOTES :
+    // We could optimize the data transfer between Javscript and JavaFX
+    // But this is not the purpose, and it work good enough to keep it as it
+
+    /**
+     * Application
+     */
+    var app = null;
+
+    // Store all the document div to be accessed in other functions
+
+    var mapDiv = document.getElementById("map");
+
+    /**
+     * Get the name of a function
+     * @param  fun function : the function to get the name
+     * @return string the function name
+     */
+    function getFunctionName(fun) {
+        var ret = fun.toString();
+        ret = ret.substr('function '.length);
+        ret = ret.substr(0, ret.indexOf('('));
+        return ret;
+    }
+
+    /**
+     * Application class used to map the JsApp and the Javascript
+     * So we can write real javascript without caring about how
+     * we send or get the information
+     * @return {{onMapChange: onMapChange, sendNewTspMap: sendNewTspMap}}
+     * @constructor
+     */
+    function Application(){
+        var _jap = javaApp;
+        return {
+            onMapChange: function(arg){
+                _jap.onMapChange(getFunctionName(arg));
+            },
+            sendNewTspMap: function(arg){
+                _jap.sendNewTspMap(arg);
+            }
+        }
+    }
+
+    // Initialisation
+    var hasBeenInit = false;
+    function init(){
+
+        // this is used in testing when launching the html in normal browser
+        if(!window.javaApp){
+            var info = function(e){
+                console.log(e);
+            };
+            info("#---------------# \n Recreating javaApp from the Controller.JsApplication perspective \n #---------------# \n\n");
+            javaApp = {
+                onMapChange: function(arg){
+                    info(arg);
+                },
+                sendNewTspMap: function(arg){
+                    info(arg);
+                }
+            }
+        }
+
+        // Application init()
+        app = Application();
+
+        // Request to the app to launch testCallback on every map change
+        app.onMapChange(newMapReceived);
+
+        // Request modification from tsp lib
+        tspDrawer.onModification(onMapModification);
+
+        hasBeenInit = true;
+    }
+    setTimeout(function(){
+        if(!hasBeenInit){
+            // Call init if it hasnt been called in 1s
+            // this basically means we are not using JavaFX
+            init();
+        }
+    }, 1000);
+
+    // App functions | Those one should exchange with JavaFX
+
+    /**
+     * Called when the data from the TSP map
+     * changed in Java
+     * Should callback a redraw
+     * @param args
+     */
+    function newMapReceived(args){
+        tspDrawer.drawState(args);
+    }
+
+    /**
+     * This function is triggered every time
+     * the map state is updated in the tsp.js
+     * And should send back to JavaFX the new
+     * State
+     * @param e
+     */
+    function onMapModification(e){
+        app.sendNewTspMap(e);
+    }
+
+</script>
+
+</body>
+</html>
