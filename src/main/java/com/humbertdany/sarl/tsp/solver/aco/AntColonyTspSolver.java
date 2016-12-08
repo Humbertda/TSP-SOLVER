@@ -1,18 +1,42 @@
 package com.humbertdany.sarl.tsp.solver.aco;
 
+import java.util.UUID;
+import java.util.logging.Level;
+
+import com.humbertdany.sarl.tsp.core.graph.Graph;
 import com.humbertdany.sarl.tsp.core.params.ApplicationParametersObserver;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
+import com.humbertdany.sarl.tsp.solver.aco.sarl.EnvironmentListener;
+import com.humbertdany.sarl.tsp.solver.aco.sarl.Launcher;
 import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
+
+import io.janusproject.Boot;
+import io.janusproject.util.LoggerCreator;
 import javafx.scene.layout.Pane;
 
-public class AntColonyTspSolver extends ATspSolver implements ApplicationParametersObserver<AcoParameters> {
+public class AntColonyTspSolver extends ATspSolver implements ApplicationParametersObserver<AcoParameters>, EnvironmentListener {
 
+	final private UUID uuid = UUID.randomUUID();
+	
 	final private AcoParameters parameters;
+	
+	private boolean appParametersUpToDate = false;
 
 	public AntColonyTspSolver(){
 		parameters = AcoParameters.buildDefault();
 		getParameters().watchParametersChange(this);
+		Boot.setOffline(true);
+    	Boot.setVerboseLevel(LoggerCreator.toInt(Level.INFO));
+    	try {
+			Boot.startJanus(
+					(Class) null,
+					Launcher.class,
+					this
+				);
+		} catch (Exception e) {
+			System.exit(-1);
+		}
 	}
 
 	@Override
@@ -22,12 +46,27 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 	}
 
 	public AcoParameters getParameters() {
+		appParametersUpToDate = true;
 		return parameters;
 	}
 
 	@Override
 	public void parametersChanged(final AcoParameters newParams) {
-		System.out.println(newParams);
+		appParametersUpToDate = false; 
+	}
+	
+	@Override
+	public UUID getID() {
+		return this.uuid; 
+	}
+
+	@Override
+	public void newGraphState(final Graph g) {
+		g.test();
+	}
+	
+	public boolean isAppParametersUpToDate(){
+		return appParametersUpToDate;
 	}
 
 }

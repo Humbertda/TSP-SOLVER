@@ -11,6 +11,7 @@ public class AcoParameters extends AApplicationParameters {
 	
 	private Integer omega;
 	private Boolean isChecked;
+	private int msBetweenTick = 1000;
 
 	// -- constructors
 
@@ -26,7 +27,8 @@ public class AcoParameters extends AApplicationParameters {
 	// -- Serialize
 
 	public String toString(){
-		return "AApplicationParameters: omega=" + this.getOmega() + " isChecked="+ this.getChecked();
+		return "AApplicationParameters: omega=" + this.getOmega() + " isChecked="+ this.getChecked()
+				+ " msBetweenTick="+ this.getMsBetweenTick();
 	}
 
 	// -- getters & setters
@@ -48,6 +50,13 @@ public class AcoParameters extends AApplicationParameters {
 		isChecked = checked;
 		notify(this);
 	}
+	
+	public int getMsBetweenTick(){
+		return msBetweenTick;
+	}
 
+	public void setMsBetweenTick(int ms){
+		msBetweenTick = ms;
+	}
 
 }
