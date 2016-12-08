@@ -1,19 +1,54 @@
 package com.humbertdany.sarl.tsp.solver.aco.sarl
 
-import io.sarl.core.Logging
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import com.humbertdany.sarl.tsp.core.graph.Graph
+import com.humbertdany.sarl.tsp.solver.aco.AntColonyTspSolver
+import io.sarl.core.DefaultContextInteractions
+import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters
 import io.sarl.core.Schedules
+
+event NewTick {
+	
+}
 
 agent Launcher {
 	
-	uses Logging, Lifecycle, Schedules
+	uses Logging, Lifecycle, DefaultContextInteractions, Schedules
 
-	var i : int = 0;
+	var listeners = <EnvironmentListener>newArrayList
+	
+	var solver : AntColonyTspSolver;
+	var params : AcoParameters; 
 
 	on Initialize {
-		info("1: Hello World in the super agent!")
-		killMe
+		solver = occurrence.parameters.get(0) as AntColonyTspSolver;
+		listeners.add(solver)
+		params = solver.parameters
+		emit(new NewTick)
+	}
+	
+	on NewTick {
+		
+		// Get the new params if they have changed
+		if (!solver.isAppParametersUpToDate) {
+			info("Querying the new parameters, since they have been updated")
+			params = solver.parameters
+		}
+		
+		info(params)
+		
+		fireNewState
+		in(params.msBetweenTick) [
+			emit(new NewTick)
+		]
+	}
+
+	def fireNewState {
+		for (listener : this.listeners) {
+			listener.newGraphState(new Graph)
+		}
 	}
 	
 }
