@@ -2,21 +2,14 @@ package com.humbertdany.sarl.tsp.ui;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.logging.Level;
-
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.aco.AntColonyTspSolver;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.EnvironmentListener;
 import com.humbertdany.sarl.tsp.solver.aco.sarl.GuiListener;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.Launcher;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import io.janusproject.Boot;
-import io.janusproject.util.LoggerCreator;
 
 public class MainUI extends Application {
 	
