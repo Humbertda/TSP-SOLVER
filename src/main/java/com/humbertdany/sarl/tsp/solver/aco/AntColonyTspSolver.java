@@ -6,9 +6,8 @@ import java.util.logging.Level;
 import com.humbertdany.sarl.tsp.core.graph.Graph;
 import com.humbertdany.sarl.tsp.core.params.ApplicationParametersObserver;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
+import com.humbertdany.sarl.tsp.solver.aco.sarl.*;
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.EnvironmentListener;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.Launcher;
 import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
 
 import io.janusproject.Boot;
@@ -25,15 +24,19 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 
 	public AntColonyTspSolver(){
 		parameters = AcoParameters.buildDefault();
+	}
+
+	void solve(){
+		// TODO implementation of this
 		getParameters().watchParametersChange(this);
 		Boot.setOffline(true);
-    	Boot.setVerboseLevel(LoggerCreator.toInt(Level.INFO));
-    	try {
+		Boot.setVerboseLevel(LoggerCreator.toInt(Level.INFO));
+		try {
 			Boot.startJanus(
 					(Class) null,
 					Launcher.class,
 					this
-				);
+			);
 		} catch (Exception e) {
 			System.exit(-1);
 		}
@@ -67,6 +70,11 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 	
 	public boolean isAppParametersUpToDate(){
 		return appParametersUpToDate;
+	}
+
+	@Override
+	protected String getSolverName() {
+		return "SARL AcoSolver";
 	}
 
 }

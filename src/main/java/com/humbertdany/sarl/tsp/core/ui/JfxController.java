@@ -1,5 +1,7 @@
 package com.humbertdany.sarl.tsp.core.ui;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.*;
 
 abstract public class JfxController {
@@ -18,6 +20,10 @@ abstract public class JfxController {
 		checkbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			method.setValue(newValue);
 		});
+	}
+
+	final protected void bindButton(final Button btn, final EventHandler<ActionEvent> evtHandler){
+		btn.setOnAction(evtHandler);
 	}
 
 }

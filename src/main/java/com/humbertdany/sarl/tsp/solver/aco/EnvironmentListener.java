@@ -1,4 +1,4 @@
-package com.humbertdany.sarl.tsp.solver.aco.sarl;
+package com.humbertdany.sarl.tsp.solver.aco;
 
 import com.humbertdany.sarl.tsp.core.graph.Graph;
 

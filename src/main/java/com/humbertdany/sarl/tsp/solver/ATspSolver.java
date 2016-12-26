@@ -10,4 +10,11 @@ abstract public class ATspSolver {
 
 	public abstract AApplicationParameters getParameters();
 	abstract public void buildGui(final Pane ctrl);
+
+	final public String toString(){
+		return this.getSolverName() == null ? "Null" : this.getSolverName();
+	}
+
+	protected abstract String getSolverName();
+
 }

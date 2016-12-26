@@ -8,6 +8,7 @@ import com.humbertdany.sarl.tsp.solver.aco.AntColonyTspSolver
 import io.sarl.core.DefaultContextInteractions
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters
 import io.sarl.core.Schedules
+import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener
 
 event NewTick {
 	

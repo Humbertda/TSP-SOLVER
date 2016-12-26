@@ -1,35 +1,53 @@
-package com.humbertdany.sarl.tsp.ui;
+package com.humbertdany.sarl.tsp.mainui;
 
+import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
+import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 
-import java.util.ArrayList;
+import java.util.*;
 
-public class Controller {
+public class Controller extends JfxController {
 
-	private static final String HTML_VIEW_FILENAME = "webView.html";
+	private static final String HTML_VIEW_FILENAME = "/mainUi/webView.html";
 
 	@FXML
 	private Pane paramPane;
 	@FXML
 	private WebView webViewer;
+	@FXML
+	private ListView<ATspSolver> solverList;
+	@FXML
+	private Button startBtn;
+	@FXML
+	private Button backSolverBtn;
+
+	private ATspSolver solver;
 
 	private WebEngine webEngine;
 
-	private ATspSolver solver;
+	private TspSolverLibrary tspSolverLibrary;
 
 	private JsApplication jsApp = new JsApplication();
 
 	@FXML
 	public void initialize() {
+		switchMode(false);
+
+		tspSolverLibrary = TspSolverLibrary.init();
+
 		webEngine = webViewer.getEngine();
 
-		webEngine.load(Controller.class.getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
+		webEngine.load(this.getClass().getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
 		webEngine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
 			if(newState == State.SUCCEEDED){
 				JSObject window = (JSObject)webEngine.executeScript("window");
@@ -37,6 +55,34 @@ public class Controller {
 				webEngine.executeScript("init()");
 			}
 		});
+
+		// ListView generation
+		final ObservableList<ATspSolver> list = FXCollections.observableArrayList();
+		list.addAll(tspSolverLibrary.getSolvers());
+		solverList.setItems(list);
+		solverList.setOnMouseClicked(event -> enterSolverMode(solverList.getSelectionModel().getSelectedItem()));
+
+		this.bindButton(backSolverBtn, event -> {
+			switchMode(false);
+			solver = null;
+		});
+
+	}
+
+	/**
+	 * Method called when a Solver is selected by the user
+	 * It will init the scene (make the buttons return appears and init the controler pane)
+	 * @param solver The selected solver
+	 */
+	private void enterSolverMode(final ATspSolver solver){
+		bindSolver(solver);
+		switchMode(true);
+	}
+
+	private void switchMode(boolean isSolverMode) {
+		solverList.setVisible(!isSolverMode);
+		startBtn.setVisible(isSolverMode);
+		backSolverBtn.setVisible(isSolverMode);
 	}
 
 	public void bindSolver(final ATspSolver solver){

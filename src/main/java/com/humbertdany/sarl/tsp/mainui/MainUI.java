@@ -1,10 +1,8 @@
-package com.humbertdany.sarl.tsp.ui;
+package com.humbertdany.sarl.tsp.mainui;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import com.humbertdany.sarl.tsp.solver.ATspSolver;
-import com.humbertdany.sarl.tsp.solver.aco.AntColonyTspSolver;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.GuiListener;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,7 +12,6 @@ import javafx.stage.Stage;
 public class MainUI extends Application {
 	
 	final private UUID uuid = UUID.randomUUID();
-	private Controller ctrl;
 	
 	private ArrayList<GuiListener> guiListeners = new ArrayList<>();
 
@@ -22,18 +19,9 @@ public class MainUI extends Application {
     public void start(Stage primaryStage) throws Exception {
     	
     	try {
-	    	
-	    	// build the TspSolver
-		    // => We could imagine other solver type, not even related to SARL
-		    final ATspSolver tspSolver = new AntColonyTspSolver();
 
 		    // Load the stuff from JavaFX and the controller
-		    final FXMLLoader fxmlLoader = new FXMLLoader();
-		    final Parent root = fxmlLoader.load(getClass().getResource("sample.fxml").openStream());
-		    ctrl = fxmlLoader.getController();
-
-		    // Bind the Solver
-		    ctrl.bindSolver(tspSolver);
+		    final Parent root = FXMLLoader.load(getClass().getResource("/mainUi/sample.fxml"));
 
 		    // Set the main frame info and display it
 	        primaryStage.setTitle("TSP Ant Colony Solver");
@@ -55,10 +43,6 @@ public class MainUI extends Application {
         for(GuiListener l : guiListeners){
         	l.closing(this);
         }
-    }
-    
-    public Controller getController(){
-    	return ctrl;
     }
     
     public void onClosingEvent(final GuiListener l){
