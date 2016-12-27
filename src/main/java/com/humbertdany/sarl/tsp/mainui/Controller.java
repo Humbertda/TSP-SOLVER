@@ -1,11 +1,15 @@
 package com.humbertdany.sarl.tsp.mainui;
 
 import com.humbertdany.sarl.tsp.core.graph.Graph;
-import com.humbertdany.sarl.tsp.core.graph.Point;
+import com.humbertdany.sarl.tsp.core.utils.Point;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MGridPane;
+import com.humbertdany.sarl.tsp.filereader.ParsingException;
+import com.humbertdany.sarl.tsp.filereader.TspProblemReader;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
+import com.humbertdany.sarl.tsp.tspgraph.TspCommonLibrary;
+import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker.State;
@@ -40,6 +44,8 @@ public class Controller extends JfxController {
 
 	private JsApplication jsApp = new JsApplication();
 
+	private final TspProblemReader reader = new TspProblemReader();
+
 
 	@FXML
 	private MGridPane selectionGPane;
@@ -57,9 +63,19 @@ public class Controller extends JfxController {
 		webEngine.load(this.getClass().getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
 		webEngine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
 			if(newState == State.SUCCEEDED){
+
 				JSObject window = (JSObject)webEngine.executeScript("window");
 				window.setMember("javaApp", jsApp);
 				webEngine.executeScript("init()");
+
+				// TODO Make a real TSP selection
+				try {
+					final TspGraph tspGraph = reader.readFromString(TspCommonLibrary.BERLIN_52);
+					jsApp.sendNewMap(tspGraph);
+				} catch (ParsingException e) {
+					e.printStackTrace();
+				}
+
 			}
 		});
 
@@ -130,8 +146,7 @@ public class Controller extends JfxController {
 				);
 				points.add(p);
 			}
-			final Graph g = new Graph(points);
-			System.out.println(g.maxDegreeVertex());
+			// TODO Make a graph there and go on
 		}
 
 		/**
@@ -151,13 +166,12 @@ public class Controller extends JfxController {
 		 * is live !
 		 * @param arg String
 		 */
-		void sendNewMap(final String arg){
-			// final AApplicationParameters params = solver.getParameters();
+		void sendNewMap(final D3GraphDisplayable arg){
 			for(String s : callbacks){
-				webEngine.executeScript(s + "('" + arg +"')");
+				webEngine.executeScript(s + "('" + arg.getD3String() +"')");
 			}
 		}
 
 	}
-	
+
 }

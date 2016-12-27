@@ -17,7 +17,6 @@
         #states {
             fill: #aaa;
             stroke: #fff;
-            stroke-width: 1px;
         }
         #states .active {
             fill: orange;
@@ -46,8 +45,7 @@
             left: 0;
         }
         path.connection {
-            stroke: blue;
-            stroke-width: 1px;
+            stroke: rgba(0,0,0,.3);
             fill: none;
         }
     </style>
@@ -171,6 +169,11 @@
     }
 
 </script>
+<script>
+    // TESTS
+    var m = '{"cities":[{"name":"Belfort","vertexInfo":{"x":1.0,"y":1.0}}, {"name":"Besancon","vertexInfo":{"x":1.0,"y":2.0}}, {"name":"Champagnole","vertexInfo":{"x":2.0,"y":1.0}}, {"name":"Dijon","vertexInfo":{"x":2.0,"y":2.0}}, {"name":"Genève","vertexInfo":{"x":1.5,"y":1.5}}], "edges":[{"from":{"name":"Belfort","vertexInfo":{"x":1.0,"y":1.0}},"to":{"name":"Besancon","vertexInfo":{"x":1.0,"y":2.0}},"cost":50}, {"from":{"name":"Besancon","vertexInfo":{"x":1.0,"y":2.0}},"to":{"name":"Belfort","vertexInfo":{"x":1.0,"y":1.0}},"cost":50}, {"from":{"name":"Besancon","vertexInfo":{"x":1.0,"y":2.0}},"to":{"name":"Champagnole","vertexInfo":{"x":2.0,"y":1.0}},"cost":25}, {"from":{"name":"Champagnole","vertexInfo":{"x":2.0,"y":1.0}},"to":{"name":"Besancon","vertexInfo":{"x":1.0,"y":2.0}},"cost":25}, {"from":{"name":"Champagnole","vertexInfo":{"x":2.0,"y":1.0}},"to":{"name":"Genève","vertexInfo":{"x":1.5,"y":1.5}},"cost":15}, {"from":{"name":"Genève","vertexInfo":{"x":1.5,"y":1.5}},"to":{"name":"Champagnole","vertexInfo":{"x":2.0,"y":1.0}},"cost":15}, {"from":{"name":"Belfort","vertexInfo":{"x":1.0,"y":1.0}},"to":{"name":"Genève","vertexInfo":{"x":1.5,"y":1.5}},"cost":23}, {"from":{"name":"Genève","vertexInfo":{"x":1.5,"y":1.5}},"to":{"name":"Belfort","vertexInfo":{"x":1.0,"y":1.0}},"cost":23}, {"from":{"name":"Dijon","vertexInfo":{"x":2.0,"y":2.0}},"to":{"name":"Belfort","vertexInfo":{"x":1.0,"y":1.0}},"cost":50}, {"from":{"name":"Belfort","vertexInfo":{"x":1.0,"y":1.0}},"to":{"name":"Dijon","vertexInfo":{"x":2.0,"y":2.0}},"cost":50}, {"from":{"name":"Dijon","vertexInfo":{"x":2.0,"y":2.0}},"to":{"name":"Champagnole","vertexInfo":{"x":2.0,"y":1.0}},"cost":40}, {"from":{"name":"Champagnole","vertexInfo":{"x":2.0,"y":1.0}},"to":{"name":"Dijon","vertexInfo":{"x":2.0,"y":2.0}},"cost":40}]}';
+    newMapReceived(m);
 
+</script>
 </body>
 </html>

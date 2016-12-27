@@ -8,9 +8,9 @@
 
 	var width = 600,
 	    height = 600,
-	    centered,
-	    dotscale = 5,
-	    cities = [];
+		optimalCitySize = 5,
+	    cities = [],
+		edges = [];
 
 	var path = d3.geo.path();
 
@@ -43,24 +43,26 @@
 		.attr("height", height)
 	;
 	
+	var createCity = function(v){
+		return v; // TODO Safe params
+	};
+	
+	var createPath = function(v){
+		return v;// TODO Safe params
+	};
+	
 	var g = svg.append("g")
 	    .attr("id", "states");
 	
 	function clickMap () {
-		cities.push(d3.mouse(this));
+		cities.push(createCity({
+			x: d3.mouse(this)[0],
+			y: d3.mouse(this)[1]
+		}));
 		drawCities();
 		_.each(onModificationObservers, function(e){
 			e(cities);
 		});
-	}
-	
-	/**
-	 * Reset all the map data
-	 */
-	function reset () {
-		cities = [];
-		svg.selectAll('circle').remove();
-		svg.selectAll('path.connection').remove();
 	}
 	
 	/**
@@ -69,38 +71,36 @@
 	function drawCities() {
 		svg.selectAll('circle').data(cities).enter()
 			.append('circle')
-				.attr('cx', function (d) { return d[0]; })
-				.attr('cy', function (d) { return d[1]; })
-				.attr('r', dotscale)
+				.attr('cx', function (d) { return d.x; })
+				.attr('cy', function (d) { return d.y; })
+				.attr('r', optimalCitySize)
 				.attr('class', 'city');
+		console.log(cities);
 	}
 	
 	/**
 	 * Draw all the path
 	 * @param ipath
 	 */
-	function drawPaths(ipath) {
-		var paths = _.map(_.zip(ipath.slice(0,ipath.length-1), ipath.slice(1)), function (pair) {
-			return [cities[pair[0]], cities[pair[1]]]
-		}).slice();
-
+	function drawPaths() {
 		svg.selectAll('path.connection').remove();
-		svg.selectAll('path.connection').data(paths).enter()
+		svg.selectAll('path.connection').data(edges).enter()
 			.append('path')
-				.attr('d', function(d) {
-			    var dx = d[1][0] - d[0][0],
-			        dy = d[1][1] - d[0][1],
-			        dr = Math.sqrt(dx * dx + dy * dy);
-			    return "M" + d[0][0] + "," + d[0][1] + "A" + dr + "," + dr + " 0 0,1 " + d[1][0] + "," + d[1][1];
-			  })
-				.attr('class', 'connection')
-    		.attr("marker-end", "url(#directed-line)");
-	}
-
-	function run() {
-		var answer = sanTsp(cities, {});
-		drawPaths(answer.initial.path);
-		setTimeout(function () { drawPaths(answer.final.path); }, 1000);
+			.attr('d', function(d) {
+				console.log(d);
+				var from = d['from']['vertexInfo'];
+				var to = d['to']['vertexInfo'];
+				var cost = d['cost'];
+				var dx = to.x - from.x,
+					dy = to.y - from.y,
+					dr = Math.sqrt(dx * dx + dy * dy);
+				return "M" + from.x + "," + from.y + "A" + dr + "," + dr + " 0 0,1 " + to.x + "," + to.y;
+			})
+			.attr("stroke-width", function(d) {
+				return (optimalCitySize*.3)+"px";
+			})
+			.attr('class', 'connection')
+			//.attr("marker-end", "url(#directed-line)");
 	}
 	
 	var onModificationObservers = [];
@@ -114,7 +114,49 @@
 	}
 	
 	function drawState(newState){
-		//TODO:: draw all the cities and path from state sent
+		var json = JSON.parse(newState);
+		var rawCities = json['cities'];
+		var rawEdges = json['edges'];
+		cities = [];
+		var maxX = 0;
+		var maxY = 0;
+		var minX = 1000000;
+		var minY = 1000000;
+		for(var i = 0; i < rawCities.length; i++){
+			var nfo = rawCities[i].vertexInfo;
+			cities.push(createCity({
+				x: nfo.x,
+				y: nfo.y
+			}));
+			if(nfo.x > maxX){
+				maxX = nfo.x;
+			}
+			if(nfo.y > maxY){
+				maxY = nfo.y;
+			}
+			if(nfo.x < minX){
+				minX = nfo.x;
+			}
+			if(nfo.y < minY){
+				minY = nfo.y;
+			}
+		}
+		edges = [];
+		for(i = 0 ; i < rawEdges.length; i++){
+			edges.push(createPath(rawEdges[i]));
+		}
+		var margin = 0.1;
+		var upMargin = 1+margin;
+		var lowMargin = 1-margin;
+		width = maxX*upMargin;
+		height = maxY*upMargin;
+		var lLeftBox = minX*lowMargin;
+		var lUpBox = minY*lowMargin;
+		console.log(lUpBox);
+		optimalCitySize = (width+height)/2*.01;
+		svg.attr("viewBox", lLeftBox + " " + lUpBox + " " + width + " " + height);
+		drawCities();
+		drawPaths();
 	}
 	
 	return {

@@ -8,6 +8,12 @@
     <artifactId>SARL-TSP-ACO</artifactId>
     <version>1.0</version>
 
+	<properties>
+		<!-- Use the latest version whenever possible. -->
+		<jackson.version>2.4.4</jackson.version>
+		<janusproject.version>2.0.4.0</janusproject.version>
+	</properties>
+
     <build>
         <plugins>
             <plugin>
@@ -23,6 +29,18 @@
 
     <dependencies>
 
+        <!-- Jackson for transferring Json data to D3 visualisation easily -->
+        <dependency>
+	        <groupId>com.fasterxml.jackson.core</groupId>
+	        <artifactId>jackson-databind</artifactId>
+	        <version>${jackson.version}</version>
+        </dependency>
+	    <dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-core</artifactId>
+		    <version>${jackson.version}</version>
+	    </dependency>
+
         <!-- SARL Dependencies (sarl.io, janusproject, etc.) -->
         <dependency>
             <groupId>io.sarl.maven</groupId>
@@ -32,7 +50,7 @@
         <dependency>
             <groupId>io.janusproject</groupId>
             <artifactId>io.janusproject.kernel</artifactId>
-            <version>2.0.4.0</version>
+            <version>${janusproject.version}</version>
         </dependency>
 
     </dependencies>

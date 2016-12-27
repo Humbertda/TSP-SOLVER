@@ -1,4 +1,4 @@
-package com.humbertdany.sarl.tsp.core.graph;
+package com.humbertdany.sarl.tsp.core.utils;
 
 public class Point {
 
