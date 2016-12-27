@@ -1,6 +1,9 @@
 package com.humbertdany.sarl.tsp.mainui;
 
+import com.humbertdany.sarl.tsp.core.graph.Graph;
+import com.humbertdany.sarl.tsp.core.graph.Point;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
+import com.humbertdany.sarl.tsp.core.ui.MGridPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
 import javafx.collections.FXCollections;
@@ -35,15 +38,19 @@ public class Controller extends JfxController {
 
 	private WebEngine webEngine;
 
-	private TspSolverLibrary tspSolverLibrary;
-
 	private JsApplication jsApp = new JsApplication();
+
+
+	@FXML
+	private MGridPane selectionGPane;
+	@FXML
+	private MGridPane paramsGPane;
 
 	@FXML
 	public void initialize() {
 		switchMode(false);
 
-		tspSolverLibrary = TspSolverLibrary.init();
+		final TspSolverLibrary tspSolverLibrary = TspSolverLibrary.init();
 
 		webEngine = webViewer.getEngine();
 
@@ -60,7 +67,12 @@ public class Controller extends JfxController {
 		final ObservableList<ATspSolver> list = FXCollections.observableArrayList();
 		list.addAll(tspSolverLibrary.getSolvers());
 		solverList.setItems(list);
-		solverList.setOnMouseClicked(event -> enterSolverMode(solverList.getSelectionModel().getSelectedItem()));
+		solverList.setOnMouseClicked(event -> {
+			ATspSolver solver = solverList.getSelectionModel().getSelectedItem();
+			if(solver != null){
+				enterSolverMode(solver);
+			}
+		});
 
 		this.bindButton(backSolverBtn, event -> {
 			switchMode(false);
@@ -83,9 +95,12 @@ public class Controller extends JfxController {
 		solverList.setVisible(!isSolverMode);
 		startBtn.setVisible(isSolverMode);
 		backSolverBtn.setVisible(isSolverMode);
+		paramsGPane.setVisible(isSolverMode);
+		selectionGPane.setVisible(!isSolverMode);
 	}
 
 	public void bindSolver(final ATspSolver solver){
+		paramPane.getChildren().clear();
 		this.solver = solver;
 		solver.buildGui(paramPane);
 	}
@@ -106,7 +121,17 @@ public class Controller extends JfxController {
 		 * @param arg String
 		 */
 		public void sendNewTspMap(final String arg) {
-			System.out.println(arg);
+			final String[] strings = arg.split(",");
+			final List<Point> points = new ArrayList<>();
+			for (int i = 0; i < strings.length; i = i+2) {
+				final Point p = new Point(
+						Double.parseDouble(strings[i]),
+						Double.parseDouble(strings[i+1])
+				);
+				points.add(p);
+			}
+			final Graph g = new Graph(points);
+			System.out.println(g.maxDegreeVertex());
 		}
 
 		/**

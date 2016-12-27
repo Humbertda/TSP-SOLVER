@@ -65,7 +65,7 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 
 	@Override
 	public void newGraphState(final Graph g) {
-		g.test();
+		// TODO do something with it
 	}
 	
 	public boolean isAppParametersUpToDate(){

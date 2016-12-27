@@ -22,6 +22,29 @@
         #states .active {
             fill: orange;
         }
+        #map {
+            display: block;
+            width:100%;
+            height: 100%;
+            position: fixed;
+        }
+        #tsp {
+            border: 1px solid #000;
+        }
+        .svg-container {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%; /* aspect ratio */
+            vertical-align: top;
+            overflow: hidden;
+        }
+        .svg-content-responsive {
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
         path.connection {
             stroke: blue;
             stroke-width: 1px;

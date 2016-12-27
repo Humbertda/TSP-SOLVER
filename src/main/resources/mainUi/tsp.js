@@ -6,17 +6,22 @@
 ;var tspDrawer = (function (d3, _) {
 	'use strict';
 
-	var width = 960,
-	    height = 500,
+	var width = 600,
+	    height = 600,
 	    centered,
 	    dotscale = 5,
 	    cities = [];
 
 	var path = d3.geo.path();
 
-	var svg = d3.select("#tsp").append("svg")
-	    .attr("width", width)
-	    .attr("height", height);
+	var svg = d3.select("#tsp")
+			.append("div")
+			.classed("svg-container", true)
+			.append("svg")
+			.attr("preserveAspectRatio", "xMinYMin meet")
+			.attr("viewBox", "0 0 " + width + " " + height)
+			.classed("svg-content-responsive", true)
+		;
 
 	// Arrows
 	svg.append("svg:defs")
@@ -32,11 +37,12 @@
 	    .attr("d", "M0,-5L10,0L0,5");
 
 	svg.append("rect")
-	    .attr("class", "background")
-	    .attr("width", width)
-	    .attr("height", height)
-		.on('click', clickMap);
-
+		.on('click', clickMap)
+		.attr("class", "background")
+		.attr("width", width)
+		.attr("height", height)
+	;
+	
 	var g = svg.append("g")
 	    .attr("id", "states");
 	
