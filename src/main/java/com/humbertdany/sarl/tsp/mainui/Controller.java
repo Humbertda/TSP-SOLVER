@@ -1,7 +1,7 @@
 package com.humbertdany.sarl.tsp.mainui;
 
-import com.humbertdany.sarl.tsp.core.graph.Graph;
-import com.humbertdany.sarl.tsp.core.utils.Point;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MGridPane;
 import com.humbertdany.sarl.tsp.filereader.ParsingException;
@@ -10,6 +10,8 @@ import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
 import com.humbertdany.sarl.tsp.tspgraph.TspCommonLibrary;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
+import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
+import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker.State;
@@ -21,7 +23,8 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Controller extends JfxController {
 
@@ -40,12 +43,15 @@ public class Controller extends JfxController {
 
 	private ATspSolver solver;
 
+	private TspGraph tspGraph;
+
 	private WebEngine webEngine;
 
 	private JsApplication jsApp = new JsApplication();
 
 	private final TspProblemReader reader = new TspProblemReader();
 
+	private final ObjectMapper mapper = new ObjectMapper();
 
 	@FXML
 	private MGridPane selectionGPane;
@@ -70,7 +76,7 @@ public class Controller extends JfxController {
 
 				// TODO Make a real TSP selection
 				try {
-					final TspGraph tspGraph = reader.readFromString(TspCommonLibrary.BERLIN_52);
+					tspGraph = reader.readFromString(TspCommonLibrary.BERLIN_52);
 					jsApp.sendNewMap(tspGraph);
 				} catch (ParsingException e) {
 					e.printStackTrace();
@@ -137,16 +143,13 @@ public class Controller extends JfxController {
 		 * @param arg String
 		 */
 		public void sendNewTspMap(final String arg) {
-			final String[] strings = arg.split(",");
-			final List<Point> points = new ArrayList<>();
-			for (int i = 0; i < strings.length; i = i+2) {
-				final Point p = new Point(
-						Double.parseDouble(strings[i]),
-						Double.parseDouble(strings[i+1])
-				);
-				points.add(p);
+			try {
+				final CityEntry cityEntry = mapper.readValue(arg, CityEntry.class);
+				tspGraph.addVertex(new TspVertex("City in " + cityEntry.toString(), cityEntry.makeVertexInfo()));
+				jsApp.sendNewMap(tspGraph);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			// TODO Make a graph there and go on
 		}
 
 		/**

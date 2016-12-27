@@ -44,24 +44,41 @@
 	;
 	
 	var createCity = function(v){
-		return v; // TODO Safe params
+		return _.extend({
+			x: 0.0,
+			y: 0.0
+		}, v);
 	};
 	
 	var createPath = function(v){
-		return v;// TODO Safe params
+		return _.extend({
+			cost: 0,
+			from: {
+				vertexInfo: {
+					x: 0.0,
+					y: 0.0
+				}
+			},
+			to: {
+				vertexInfo: {
+					x: 0.0,
+					y: 0.0
+				}
+			}
+		}, v);
 	};
 	
 	var g = svg.append("g")
 	    .attr("id", "states");
 	
 	function clickMap () {
-		cities.push(createCity({
+		drawCities();
+		var created = createCity({
 			x: d3.mouse(this)[0],
 			y: d3.mouse(this)[1]
-		}));
-		drawCities();
+		});
 		_.each(onModificationObservers, function(e){
-			e(cities);
+			e(created);
 		});
 	}
 	
@@ -75,7 +92,6 @@
 				.attr('cy', function (d) { return d.y; })
 				.attr('r', optimalCitySize)
 				.attr('class', 'city');
-		console.log(cities);
 	}
 	
 	/**
@@ -87,7 +103,6 @@
 		svg.selectAll('path.connection').data(edges).enter()
 			.append('path')
 			.attr('d', function(d) {
-				console.log(d);
 				var from = d['from']['vertexInfo'];
 				var to = d['to']['vertexInfo'];
 				var cost = d['cost'];
@@ -100,7 +115,7 @@
 				return (optimalCitySize*.3)+"px";
 			})
 			.attr('class', 'connection')
-			//.attr("marker-end", "url(#directed-line)");
+			//.attr("marker-end", "url(#directed-line)"); // This add an arrow to the end
 	}
 	
 	var onModificationObservers = [];
@@ -152,7 +167,6 @@
 		height = maxY*upMargin;
 		var lLeftBox = minX*lowMargin;
 		var lUpBox = minY*lowMargin;
-		console.log(lUpBox);
 		optimalCitySize = (width+height)/2*.01;
 		svg.attr("viewBox", lLeftBox + " " + lUpBox + " " + width + " " + height);
 		drawCities();

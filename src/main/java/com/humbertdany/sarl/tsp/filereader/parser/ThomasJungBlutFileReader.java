@@ -1,20 +1,16 @@
 package com.humbertdany.sarl.tsp.filereader.parser;
 
-import com.humbertdany.sarl.tsp.filereader.DistanceHelper;
 import com.humbertdany.sarl.tsp.filereader.ParsingException;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
-import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
-import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
-import com.humbertdany.utils.factory.ArrayFactory;
-import com.humbertdany.utils.sort.ISortingAlgorithm;
-import com.humbertdany.utils.sort.SortingFusion;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * https://github.com/thomasjungblut/antcolonyopt
  */
-public class ThomasJungBlutFileReader implements ITspFileReader {
+public class ThomasJungBlutFileReader extends ATspProblemReader {
 
 	public ThomasJungBlutFileReader(){
 
@@ -25,81 +21,19 @@ public class ThomasJungBlutFileReader implements ITspFileReader {
 		final ArrayList<Record> records = new ArrayList<>();
 		boolean readAhead = false;
 		for(String line : lines){
-			if (line.equals("EOF")) {
+			if (line.equals(END_OF_FILE)) {
 				break;
 			}
-
 			if (readAhead) {
 				String[] split = sweepNumbers(line.trim());
 				records.add(new Record(Double.parseDouble(split[1].trim()), Double
 						.parseDouble(split[2].trim())));
 			}
-
 			if (line.equals("NODE_COORD_SECTION")) {
 				readAhead = true;
 			}
 		}
-
-		final double[][] localMatrix = new double[records.size()][records.size()];
-		final TspGraph graph = new TspGraph();
-		final TspVertex[] vertices = new TspVertex[records.size()];
-
-		int rIndex = 0;
-		for (Record r : records) {
-			// Generate the vertex linked to the record
-			final TspVertex tspVertex = new TspVertex("City " + rIndex, new VertexInfo(r.x, r.y));
-			vertices[rIndex] = tspVertex;
-			graph.addVertex(tspVertex);
-			rIndex++;
-		}
-
-		final ISortingAlgorithm<Elem> sortingAlgo = new SortingFusion<>(new ArrayFactory<Elem>() {
-			@Override
-			public Elem[] buildArray(int dimension) {
-				return new Elem[dimension];
-			}
-		});
-
-		List<Elem> temporaryCostArray;
-		for(TspVertex v : vertices){
-			rIndex = 0;
-			int bIndex = 0;
-			temporaryCostArray = new ArrayList<>();
-			for (Record r : records) {
-				if(!Objects.equals(("City " + rIndex), v.getName())){
-					int cost = DistanceHelper.calculateRoundEuclideanDistance(r.x, r.y, v.getData().getX(), v.getData().getY());
-					temporaryCostArray.add(new Elem(bIndex, cost));
-					bIndex++;
-				}
-				rIndex++;
-			}
-
-			// only link the 3 more close Vertex, so we cant go every city from here
-			final Collection<Elem> sort = sortingAlgo.sort(temporaryCostArray);
-			final Elem[] sorted = new Elem[sort.size()];
-			sort.toArray(sorted);
-			for(int i = 0; i < 3; i++){
-				final Elem e = sorted[i];
-				graph.addEdge(v, vertices[e.idInArray], e.cost);
-			}
-		}
-
-		return graph;
-	}
-
-	private static class Elem implements Comparable<Elem> {
-		private Integer idInArray;
-		private Integer cost;
-
-		public Elem(int idInArray, int cost) {
-			this.idInArray = idInArray;
-			this.cost = cost;
-		}
-
-		@Override
-		public int compareTo(Elem o) {
-			return cost.compareTo(o.cost);
-		}
+		return this.getGraphFromRecords(records);
 	}
 
 	private static String[] sweepNumbers(final String input) {
