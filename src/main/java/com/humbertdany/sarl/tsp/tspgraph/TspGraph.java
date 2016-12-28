@@ -58,7 +58,7 @@ public class TspGraph extends Graph<VertexInfo> implements D3GraphDisplayable {
 			json = sb.toString();
 			return json;
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			logError(e.getMessage());
 			return "[]";
 		}
 	}

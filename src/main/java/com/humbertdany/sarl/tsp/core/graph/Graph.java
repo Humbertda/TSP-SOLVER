@@ -1,6 +1,9 @@
 package com.humbertdany.sarl.tsp.core.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.humbertdany.sarl.tsp.ui.mainui.GuiListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,6 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Graph<T> {
+
+	@JsonIgnore
+	private Logger logger;
+
 	/** Color used to mark unvisited nodes */
 	@JsonIgnore
 	public static final int VISIT_COLOR_WHITE = 1;
@@ -477,5 +484,27 @@ public class Graph<T> {
 		tmp.append(']');
 		return tmp.toString();
 	}
+
+	@JsonIgnore
+	protected final void log(final Object o){
+		if(logger == null){
+			initLogger();
+		}
+		logger.info("\n" + o.toString());
+	}
+
+	@JsonIgnore
+	protected final void logError(final Object o){
+		if(logger == null){
+			initLogger();
+		}
+		logger.error("\n" + o.toString());
+	}
+
+	@JsonIgnore
+	private void initLogger(){
+		logger = LogManager.getLogger(this.getClass());
+	}
+
 
 }

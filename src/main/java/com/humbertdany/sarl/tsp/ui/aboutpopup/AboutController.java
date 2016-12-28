@@ -16,7 +16,7 @@ public class AboutController extends JfxController {
 	public void initialize() {
 		aboutLabel.getChildren().addAll(
 				new Text("This project was made for the IA54 course taught in the"),
-				new ClassicHyperlink(HyperlinkRegister.URBM_URL, "UTBM"),
+				new ClassicHyperlink(HyperlinkRegister.UTBM_URL, "UTBM"),
 				new Text(", you can check the sources and learn more about the project on the"),
 				new ClassicHyperlink(HyperlinkRegister.GITHUB_PROJECT_URL, "GitHub")
 		);

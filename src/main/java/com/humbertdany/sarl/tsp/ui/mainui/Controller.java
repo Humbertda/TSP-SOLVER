@@ -138,7 +138,7 @@ public class Controller extends JfxController implements PopupObserver {
 				tspGraph.addVertex(new TspVertex("City in " + cityEntry.toString(), cityEntry.makeVertexInfo()));
 				jsApp.sendNewMap(tspGraph);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logError(e.getMessage());
 			}
 		}
 
@@ -165,8 +165,7 @@ public class Controller extends JfxController implements PopupObserver {
 				try {
 					webEngine.executeScript(s + "('" + toSend +"')");
 				} catch (JSException e){
-					logError(toSend);
-					e.printStackTrace();
+					logError(e.getMessage() + "Map sent: " +toSend);
 				}
 
 			}

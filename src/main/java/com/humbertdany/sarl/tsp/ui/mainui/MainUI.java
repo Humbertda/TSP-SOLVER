@@ -5,9 +5,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 
 public class MainUI extends Application {
+
+	private Logger logger;
 	
 	private ArrayList<GuiListener> guiListeners = new ArrayList<>();
 
@@ -32,12 +37,29 @@ public class MainUI extends Application {
 
 		} catch (Exception e) {
 			// Well, the app can't launch, what's going on?
-			e.printStackTrace();
+			logError(e.getMessage());
 			System.exit(-1);
 		}
-
  
     }
+
+	private void initLogger(){
+		logger = LogManager.getLogger(this.getClass());
+	}
+
+	protected final void log(final Object o){
+		if(logger == null){
+			initLogger();
+		}
+		logger.info("\n" + o.toString());
+	}
+
+	protected final void logError(final Object o){
+		if(logger == null){
+			initLogger();
+		}
+		logger.error("\n" + o.toString());
+	}
     
     @Override
     public void stop(){

@@ -6,6 +6,6 @@ public class HyperlinkRegister {
 
 	public static final String GITHUB_PROJECT_URL = "https://github.com/Humbertda/SARL-TSP-ACO";
 
-	public static final String URBM_URL = "http://www.utbm.fr/";
+	public static final String UTBM_URL = "http://www.utbm.fr/";
 
 }
