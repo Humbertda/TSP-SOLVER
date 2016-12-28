@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MGridPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
+import com.humbertdany.sarl.tsp.solver.SolverObserver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
@@ -26,7 +27,7 @@ import netscape.javascript.JSObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Controller extends JfxController implements PopupObserver {
+public class Controller extends JfxController implements PopupObserver, SolverObserver {
 
 	private static final String HTML_VIEW_FILENAME = "/mainUi/webView.html";
 
@@ -37,9 +38,9 @@ public class Controller extends JfxController implements PopupObserver {
 	@FXML
 	private ListView<ATspSolver> solverList;
 	@FXML
-	private Button startBtn;
-	@FXML
 	private Button backSolverBtn;
+	@FXML
+	public Button startStopBtn;
 
 	private ATspSolver solver;
 
@@ -62,6 +63,7 @@ public class Controller extends JfxController implements PopupObserver {
 
 		final TspSolverLibrary tspSolverLibrary = TspSolverLibrary.init();
 
+		startStopBtn.setText(BTN_START);
 		webEngine = webViewer.getEngine();
 
 		webEngine.load(this.getClass().getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
@@ -88,6 +90,7 @@ public class Controller extends JfxController implements PopupObserver {
 
 		this.bindButton(backSolverBtn, event -> {
 			switchMode(false);
+			solver.offSolverDone(this);
 			solver = null;
 		});
 
@@ -105,7 +108,6 @@ public class Controller extends JfxController implements PopupObserver {
 
 	private void switchMode(boolean isSolverMode) {
 		solverList.setVisible(!isSolverMode);
-		startBtn.setVisible(isSolverMode);
 		backSolverBtn.setVisible(isSolverMode);
 		paramsGPane.setVisible(isSolverMode);
 		selectionGPane.setVisible(!isSolverMode);
@@ -114,6 +116,7 @@ public class Controller extends JfxController implements PopupObserver {
 	public void bindSolver(final ATspSolver solver){
 		paramPane.getChildren().clear();
 		this.solver = solver;
+		solver.onSolverDone(this);
 		solver.buildGui(paramPane);
 	}
 
@@ -198,8 +201,6 @@ public class Controller extends JfxController implements PopupObserver {
 
 	@Override
 	public void newGraphSelected(final TspGraph graph) {
-		//TODO implement this
-		log(graph);
 		tspGraph = graph;
 		jsApp.sendNewMap(graph);
 	}
@@ -217,6 +218,50 @@ public class Controller extends JfxController implements PopupObserver {
 
 	public void onAboutRequest(ActionEvent evt){
 		openAbout();
+	}
+
+	// Action misc bindings
+
+	private static final String BTN_START = "Start";
+	private static final String BTN_STOP = "Stop";
+
+	public void onResetBtn(ActionEvent evt){
+		stopSolving();
+		tspGraph = new TspGraph();
+		jsApp.sendNewMap(tspGraph);
+	}
+
+	public void onStartStopBtnAction(ActionEvent evt){
+		if(startStopBtn.getText().equals(BTN_START)){
+			startSolving();
+		} else {
+			stopSolving();
+		}
+	}
+
+	private void startSolving(){
+		startStopBtn.setText(BTN_STOP);
+		if(solver != null){
+			solver.startSolving(tspGraph);
+		}
+	}
+
+	private void stopSolving(){
+		startStopBtn.setText(BTN_START);
+		if(solver != null){
+			solver.stopSolving();
+		}
+	}
+
+
+	@Override
+	public void onTspProblemSolved() {
+		stopSolving();
+	}
+
+	@Override
+	public void onNewGraphState(TspGraph g) {
+		jsApp.sendNewMap(g);
 	}
 
 }

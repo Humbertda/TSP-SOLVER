@@ -2,6 +2,7 @@ package com.humbertdany.sarl.tsp.solver.tester;
 
 import com.humbertdany.sarl.tsp.core.params.AApplicationParameters;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
+import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import javafx.scene.layout.Pane;
 
 public class AntColonySolverTester extends ATspSolver {
@@ -19,6 +20,19 @@ public class AntColonySolverTester extends ATspSolver {
 	@Override
 	protected String getSolverName() {
 		return "Tester";
+	}
+
+	@Override
+	public void startSolving(TspGraph graph) {
+		log("the Tester solver received a startSolving request for the following graph");
+		log(graph);
+		this.notifyNewGraphState(graph);
+		this.notifySolverDone();
+	}
+
+	@Override
+	public void stopSolving() {
+		log("Stop solving");
 	}
 
 }

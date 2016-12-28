@@ -5,6 +5,8 @@
  */
 ;var tspDrawer = (function (d3, _) {
 	'use strict';
+	
+	// TODO Fix display bugs
 
 	var width = 600,
 	    height = 600,

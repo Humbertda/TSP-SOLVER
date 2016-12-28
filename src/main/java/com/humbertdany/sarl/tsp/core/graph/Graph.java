@@ -17,15 +17,15 @@ public class Graph<T> {
 
 	/** Color used to mark unvisited nodes */
 	@JsonIgnore
-	public static final int VISIT_COLOR_WHITE = 1;
+	private static final int VISIT_COLOR_WHITE = 1;
 
 	/** Color used to mark nodes as they are first visited in DFS order */
 	@JsonIgnore
-	public static final int VISIT_COLOR_GREY = 2;
+	private static final int VISIT_COLOR_GREY = 2;
 
 	/** Color used to mark nodes after descendants are completely visited */
 	@JsonIgnore
-	public static final int VISIT_COLOR_BLACK = 3;
+	private static final int VISIT_COLOR_BLACK = 3;
 
 	/** Vector<Vertex> of graph verticies */
 	private List<Vertex<T>> verticies;
@@ -104,7 +104,7 @@ public class Graph<T> {
 	@JsonIgnore
 	public void setRootVertex(Vertex<T> root) {
 		this.rootVertex = root;
-		if (verticies.contains(root) == false)
+		if (!verticies.contains(root))
 			this.addVertex(root);
 	}
 
@@ -144,12 +144,12 @@ public class Graph<T> {
 	 */
 	@JsonIgnore
 	public boolean addEdge(Vertex<T> from, Vertex<T> to, int cost) throws IllegalArgumentException {
-		if (verticies.contains(from) == false)
+		if (!verticies.contains(from))
 			throw new IllegalArgumentException("from is not in graph");
-		if (verticies.contains(to) == false)
+		if (!verticies.contains(to))
 			throw new IllegalArgumentException("to is not in graph");
 
-		Edge<T> e = new Edge<T>(from, to, cost);
+		Edge<T> e = new Edge<>(from, to, cost);
 		if (from.findEdge(to) != null)
 			return false;
 		else {

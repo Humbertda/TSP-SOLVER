@@ -10,6 +10,7 @@ import com.humbertdany.sarl.tsp.solver.aco.sarl.*;
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
 import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
 
+import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import io.janusproject.Boot;
 import io.janusproject.util.LoggerCreator;
 import javafx.scene.layout.Pane;
@@ -24,22 +25,6 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 
 	public AntColonyTspSolver(){
 		parameters = AcoParameters.buildDefault();
-	}
-
-	void solve(){
-		// TODO implementation of this
-		getParameters().watchParametersChange(this);
-		Boot.setOffline(true);
-		Boot.setVerboseLevel(LoggerCreator.toInt(Level.INFO));
-		try {
-			Boot.startJanus(
-					(Class) null,
-					Launcher.class,
-					this
-			);
-		} catch (Exception e) {
-			System.exit(-1);
-		}
 	}
 
 	@Override
@@ -62,11 +47,6 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 	public UUID getID() {
 		return this.uuid; 
 	}
-
-	@Override
-	public void newGraphState(final Graph g) {
-		// TODO do something with it
-	}
 	
 	public boolean isAppParametersUpToDate(){
 		return appParametersUpToDate;
@@ -75,6 +55,35 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 	@Override
 	protected String getSolverName() {
 		return "SARL AcoSolver";
+	}
+
+	// Solving process
+
+	@Override
+	public void startSolving(TspGraph graph) {
+		// TODO implementation of this
+		getParameters().watchParametersChange(this);
+		Boot.setOffline(true);
+		Boot.setVerboseLevel(LoggerCreator.toInt(Level.INFO));
+		try {
+			Boot.startJanus(
+					(Class) null,
+					Launcher.class,
+					this
+			);
+		} catch (Exception e) {
+			System.exit(-1);
+		}
+	}
+
+	@Override
+	public void stopSolving() {
+		// TODO implementation of this
+	}
+
+	@Override
+	public void newGraphState(final Graph g) {
+		// TODO do something with it
 	}
 
 }
