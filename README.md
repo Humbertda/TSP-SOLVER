@@ -15,7 +15,7 @@ To choose your problem, go to "File > Open TSP Problem" and follow the instructi
 
 ### Finding some TSP problems
 
-You can go on the Heidelberg University webpage to find some TSP Files ready to import in the Applicatio  [http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) 
+You can go on the Heidelberg University webpage to find some TSP Files ready to import in the Application  [http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) 
 
 
 ## Tool used and inspiration
