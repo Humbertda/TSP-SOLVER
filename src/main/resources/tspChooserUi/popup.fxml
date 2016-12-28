@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.humbertdany.sarl.tsp.core.ui.MAnchorPane?>
+<?import com.humbertdany.sarl.tsp.core.ui.MGridPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<?import javafx.scene.text.TextFlow?>
+<MGridPane prefHeight="374.0" prefWidth="511.0" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.humbertdany.sarl.tsp.ui.tsppopup.TspPopupController">
+
+<columnConstraints>
+	<ColumnConstraints percentWidth="100" />
+</columnConstraints>
+<rowConstraints>
+	<RowConstraints percentHeight="100" />
+</rowConstraints>
+	<children>
+
+
+      <MAnchorPane>
+         <children>
+            <TabPane tabClosingPolicy="UNAVAILABLE" MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+              <tabs>
+                <Tab text="Free input">
+                  <content>
+
+	                  <!-- Free input -->
+	                  <MAnchorPane>
+		                  <children>
+			                  <GridPane MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+
+				                  <columnConstraints>
+					                  <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+				                  </columnConstraints>
+				                  <rowConstraints>
+					                  <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+					                  <RowConstraints maxHeight="50" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+				                  </rowConstraints>
+				                  <children>
+
+					                  <TextArea fx:id="freeInputProblem" prefHeight="200.0" prefWidth="200.0" MGridPane.rowIndex="0" />
+					                  <Button fx:id="loadFreeInputBtn" mnemonicParsing="false" text="Load" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER" MGridPane.rowIndex="1" />
+
+				                  </children>
+			                  </GridPane>
+		                  </children>
+	                  </MAnchorPane>
+
+                  </content>
+                </Tab>
+	              <Tab text="Load file">
+		              <content>
+
+			              <!-- Open file -->
+			              <MAnchorPane>
+				              <children>
+					              <GridPane MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+
+						              <columnConstraints>
+							              <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+						              </columnConstraints>
+						              <rowConstraints>
+							              <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+							              <RowConstraints maxHeight="100" minHeight="30.0" prefHeight="55.0" vgrow="NEVER" />
+							              <RowConstraints maxHeight="50" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+						              </rowConstraints>
+						              <children>
+
+							              <MAnchorPane MGridPane.rowIndex="0">
+		                                       <children>
+		                                          <TextFlow fx:id="descLoadFileLabel" MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+		                                             <padding>
+		                                                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+		                                             </padding>
+		                                          </TextFlow>
+		                                       </children>
+							              </MAnchorPane>
+
+							              <MAnchorPane MGridPane.rowIndex="1">
+		                                       <children>
+		                                          <MGridPane MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+			                                          <columnConstraints>
+				                                          <ColumnConstraints hgrow="ALWAYS" maxWidth="100" minWidth="10.0" prefWidth="70" />
+				                                          <ColumnConstraints hgrow="ALWAYS" maxWidth="400" minWidth="10.0" prefWidth="200" />
+			                                          </columnConstraints>
+			                                          <rowConstraints>
+				                                          <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+			                                          </rowConstraints>
+		                                             <children>
+		                                                <Button fx:id="openFileChooserBtn" mnemonicParsing="false" text="Open file" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER" MGridPane.columnIndex="0" />
+		                                                <TextField fx:id="pathToFileLabel" GridPane.halignment="CENTER" GridPane.valignment="CENTER" MGridPane.columnIndex="1" />
+		                                             </children>
+		                                          </MGridPane>
+		                                       </children>
+							              </MAnchorPane>
+
+							              <Button fx:id="loadOpenFileBtn" mnemonicParsing="false" text="Load" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER" MGridPane.rowIndex="2" />
+
+						              </children>
+					              </GridPane>
+				              </children>
+			              </MAnchorPane>
+
+		              </content>
+	              </Tab>
+                <Tab text="Problem library">
+                  <content>
+
+	                  <!-- List Library -->
+	                  <MAnchorPane>
+                           <children>
+                              <GridPane MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+                                  <RowConstraints maxHeight="50" minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                                </rowConstraints>
+                                 <children>
+
+                                    <ListView fx:id="listViewProblemLibrary" prefHeight="200.0" prefWidth="200.0" MGridPane.rowIndex="0" />
+                                    <Button fx:id="loadProblemLibBtn" mnemonicParsing="false" text="Load" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER" MGridPane.rowIndex="1" />
+
+                                 </children>
+                              </GridPane>
+                           </children>
+	                  </MAnchorPane>
+
+                  </content>
+                </Tab>
+              </tabs>
+            </TabPane>
+         </children>
+      </MAnchorPane>
+
+
+	</children>
+</MGridPane>

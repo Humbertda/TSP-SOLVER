@@ -1,4 +1,4 @@
-package com.humbertdany.sarl.tsp.mainui;
+package com.humbertdany.sarl.tsp.ui.mainui;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;

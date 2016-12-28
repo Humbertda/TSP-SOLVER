@@ -12,6 +12,7 @@
 		<!-- Use the latest version whenever possible. -->
 		<jackson.version>2.4.4</jackson.version>
 		<janusproject.version>2.0.4.0</janusproject.version>
+		<log4j.version>2.7</log4j.version>
 	</properties>
 
     <build>
@@ -28,6 +29,18 @@
     </build>
 
     <dependencies>
+
+	    <!-- Logger -->
+	    <dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-api</artifactId>
+		    <version>${log4j.version}</version>
+	    </dependency>
+	    <dependency>
+		    <groupId>org.apache.logging.log4j</groupId>
+		    <artifactId>log4j-core</artifactId>
+		    <version>${log4j.version}</version>
+	    </dependency>
 
         <!-- Jackson for transferring Json data to D3 visualisation easily -->
         <dependency>

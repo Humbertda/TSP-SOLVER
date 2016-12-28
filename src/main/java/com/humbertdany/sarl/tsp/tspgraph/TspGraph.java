@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.humbertdany.sarl.tsp.core.graph.Edge;
 import com.humbertdany.sarl.tsp.core.graph.Graph;
 import com.humbertdany.sarl.tsp.core.graph.Vertex;
-import com.humbertdany.sarl.tsp.mainui.D3GraphDisplayable;
+import com.humbertdany.sarl.tsp.ui.mainui.D3GraphDisplayable;
 
 import java.util.List;
 
@@ -35,25 +35,25 @@ public class TspGraph extends Graph<VertexInfo> implements D3GraphDisplayable {
 			for(Vertex<VertexInfo> vt : this.getVerticies()){
 				TspVertex v = (TspVertex) vt;
 				sb.append(ow.writeValueAsString(v));
-				if(counter == this.getVerticies().size()-1){
-					sb.append("]");
-				} else {
+				if(counter != this.getVerticies().size()-1){
 					sb.append(", ");
+
 				}
 				counter++;
 			}
+			sb.append("]");
 			sb.append(", \"edges\":[");
 			counter = 0;
 			for(Edge<VertexInfo> et : this.getEdges()){
 				TspJsonEdge e = new TspJsonEdge(et);
 				sb.append(ow.writeValueAsString(e));
-				if(counter == this.getEdges().size()-1){
-					sb.append("]");
-				} else {
+				if(counter != this.getEdges().size()-1){
+
 					sb.append(", ");
 				}
 				counter++;
 			}
+			sb.append("]");
 			sb.append("}");
 			json = sb.toString();
 			return json;

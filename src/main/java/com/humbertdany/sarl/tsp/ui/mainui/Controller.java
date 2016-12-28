@@ -1,32 +1,32 @@
-package com.humbertdany.sarl.tsp.mainui;
+package com.humbertdany.sarl.tsp.ui.mainui;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MGridPane;
-import com.humbertdany.sarl.tsp.filereader.ParsingException;
-import com.humbertdany.sarl.tsp.filereader.TspProblemReader;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
-import com.humbertdany.sarl.tsp.tspgraph.TspCommonLibrary;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
-import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
+import com.humbertdany.sarl.tsp.ui.aboutpopup.AboutController;
+import com.humbertdany.sarl.tsp.ui.tsppopup.PopupObserver;
+import com.humbertdany.sarl.tsp.ui.tsppopup.TspPopupController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker.State;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Controller extends JfxController {
+public class Controller extends JfxController implements PopupObserver {
 
 	private static final String HTML_VIEW_FILENAME = "/mainUi/webView.html";
 
@@ -49,8 +49,6 @@ public class Controller extends JfxController {
 
 	private JsApplication jsApp = new JsApplication();
 
-	private final TspProblemReader reader = new TspProblemReader();
-
 	private final ObjectMapper mapper = new ObjectMapper();
 
 	@FXML
@@ -69,19 +67,11 @@ public class Controller extends JfxController {
 		webEngine.load(this.getClass().getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
 		webEngine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
 			if(newState == State.SUCCEEDED){
-
 				JSObject window = (JSObject)webEngine.executeScript("window");
 				window.setMember("javaApp", jsApp);
 				webEngine.executeScript("init()");
-
-				// TODO Make a real TSP selection
-				try {
-					tspGraph = reader.readFromString(TspCommonLibrary.BERLIN_52);
-					jsApp.sendNewMap(tspGraph);
-				} catch (ParsingException e) {
-					e.printStackTrace();
-				}
-
+				tspGraph = new TspGraph();
+				jsApp.sendNewMap(tspGraph);
 			}
 		});
 
@@ -170,11 +160,64 @@ public class Controller extends JfxController {
 		 * @param arg String
 		 */
 		void sendNewMap(final D3GraphDisplayable arg){
+			final String toSend = arg.getD3String();
 			for(String s : callbacks){
-				webEngine.executeScript(s + "('" + arg.getD3String() +"')");
+				try {
+					webEngine.executeScript(s + "('" + toSend +"')");
+				} catch (JSException e){
+					logError(toSend);
+					e.printStackTrace();
+				}
+
 			}
 		}
 
+	}
+
+	private void initPopupGraphChooser() throws IOException {
+		TspPopupController controller = (TspPopupController) this.openModal("/tspChooserUi/popup.fxml", "Graph Selector");
+		controller.addPopupObserver(this);
+		controller.getStage().showAndWait();
+	}
+
+	public void openTspProblemChooser(){
+		try {
+			initPopupGraphChooser();
+		} catch (IOException e) {
+			logError(e.getMessage());
+		}
+	}
+
+	public void openAbout(){
+		try {
+			AboutController controller = (AboutController) this.openModal("/aboutpopup/popup.fxml", "About", 300, 200);
+			controller.getStage().showAndWait();
+		} catch (IOException e) {
+			logError(e.getMessage());
+		}
+	}
+
+	@Override
+	public void newGraphSelected(final TspGraph graph) {
+		//TODO implement this
+		log(graph);
+		tspGraph = graph;
+		jsApp.sendNewMap(graph);
+	}
+
+	// Menu Bindings
+
+
+	public void onCloseWindowRequest(ActionEvent evt) {
+		stage.close();
+	}
+
+	public void onOpenTspProblemRequest(ActionEvent evt){
+		openTspProblemChooser();
+	}
+
+	public void onAboutRequest(ActionEvent evt){
+		openAbout();
 	}
 
 }

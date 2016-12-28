@@ -33,7 +33,11 @@ public class ThomasJungBlutFileReader extends ATspProblemReader {
 				readAhead = true;
 			}
 		}
-		return this.getGraphFromRecords(records);
+		final TspGraph graphFromRecords = this.getGraphFromRecords(records);
+		if(graphFromRecords.size() <= 0){
+			throw new ParsingException("The graph is empty");
+		}
+		return graphFromRecords;
 	}
 
 	private static String[] sweepNumbers(final String input) {

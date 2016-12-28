@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.humbertdany.sarl.tsp.core.ui.MAnchorPane?>
+<?import com.humbertdany.sarl.tsp.core.ui.MGridPane?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.TextFlow?>
+<MGridPane prefHeight="220.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.humbertdany.sarl.tsp.ui.aboutpopup.AboutController">
+
+	<columnConstraints>
+		<ColumnConstraints percentWidth="100" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints percentHeight="100" />
+	</rowConstraints>
+   <children>
+      <MAnchorPane>
+         <children>
+            <TextFlow fx:id="aboutLabel" textAlignment="CENTER" MAnchorPane.bottomAnchor="15.0" MAnchorPane.leftAnchor="15.0" MAnchorPane.rightAnchor="15.0" MAnchorPane.topAnchor="15.0" />
+         </children>
+      </MAnchorPane>
+   </children>
+</MGridPane>

@@ -1,6 +1,6 @@
 import com.humbertdany.sarl.tsp.filereader.ParsingException;
 import com.humbertdany.sarl.tsp.filereader.TspProblemReader;
-import com.humbertdany.sarl.tsp.tspgraph.TspCommonLibrary;
+import com.humbertdany.sarl.tsp.tspgraph.lib.TspCommonLibrary;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 
 public class TspReaderTest extends ATest {

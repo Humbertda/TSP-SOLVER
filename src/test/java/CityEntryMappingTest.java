@@ -1,5 +1,5 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.humbertdany.sarl.tsp.mainui.CityEntry;
+import com.humbertdany.sarl.tsp.ui.mainui.CityEntry;
 
 import java.io.IOException;
 

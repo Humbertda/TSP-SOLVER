@@ -36,12 +36,12 @@
 	  .append("svg:path")
 	    .attr("d", "M0,-5L10,0L0,5");
 
-	svg.append("rect")
-		.on('click', clickMap)
+	var rect = svg.append("rect");
+	
+	rect.on('click', clickMap)
 		.attr("class", "background")
 		.attr("width", width)
-		.attr("height", height)
-	;
+		.attr("height", height);
 	
 	var createCity = function(v){
 		return _.extend({
@@ -96,7 +96,6 @@
 	
 	/**
 	 * Draw all the path
-	 * @param ipath
 	 */
 	function drawPaths() {
 		svg.selectAll('path.connection').remove();
@@ -169,6 +168,8 @@
 		var lUpBox = minY*lowMargin;
 		optimalCitySize = (width+height)/2*.01;
 		svg.attr("viewBox", lLeftBox + " " + lUpBox + " " + width + " " + height);
+		rect.attr("width", width)
+			.attr("height", height);
 		drawCities();
 		drawPaths();
 	}

@@ -10,4 +10,8 @@ public class ParsingException extends Exception {
 		super(msg);
 	}
 
+	public String getUserCause(){
+		return this.getMessage();
+	}
+
 }

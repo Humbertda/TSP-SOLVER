@@ -1,4 +1,7 @@
-package com.humbertdany.sarl.tsp.tspgraph;
+package com.humbertdany.sarl.tsp.tspgraph.lib;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class TspCommonLibrary {
 
@@ -61,5 +64,11 @@ public class TspCommonLibrary {
 			"51 1340.0 725.0\n" +
 			"52 1740.0 245.0\n" +
 			"EOF";
+
+	public static List<TspProblem> getAllCommonProblem(){
+		return Arrays.asList(
+			new TspProblem("BERLIN_52", BERLIN_52)
+		);
+	}
 
 }

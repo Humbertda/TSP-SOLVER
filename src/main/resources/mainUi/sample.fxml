@@ -4,6 +4,11 @@
 <?import com.humbertdany.sarl.tsp.core.ui.MGridPane?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
@@ -25,74 +30,100 @@ AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="
 
 -->
 
-<MGridPane xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.humbertdany.sarl.tsp.mainui.Controller">
-
-   <columnConstraints>
-      <ColumnConstraints hgrow="ALWAYS" percentWidth="30" />
-      <ColumnConstraints hgrow="ALWAYS" percentWidth="70" />
-   </columnConstraints>
-   <rowConstraints>
-	   <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
-   </rowConstraints>
-
+<MAnchorPane xmlns="http://javafx.com/javafx/8.0.76-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.humbertdany.sarl.tsp.ui.mainui.Controller">
    <children>
-
-	   <!-- TSP Sidebar -->
-      <MAnchorPane focusTraversable="true" MGridPane.columnIndex="0">
-         <children>
-
-	         <!-- Solver selection -->
-	        <MGridPane fx:id="selectionGPane" MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
-	           <columnConstraints>
-	              <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-	           </columnConstraints>
-	           <rowConstraints>
-		           <RowConstraints minHeight="10.0" prefHeight="30" vgrow="NEVER" />
-		           <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
-	           </rowConstraints>
-
-	           <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Select a solver type:" MGridPane.rowIndex="0" />
-	                 <ListView fx:id="solverList" visible="false" MAnchorPane.bottomAnchor="5.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0" MGridPane.rowIndex="1" />
-	           </children>
-	        </MGridPane>
-
-			<!-- Solver parameters -->
-            <MGridPane fx:id="paramsGPane" MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
-
-	            <columnConstraints>
-		            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-	            </columnConstraints>
-	            <rowConstraints>
-		            <RowConstraints minHeight="10.0" prefHeight="30" />
-		            <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
-		            <RowConstraints minHeight="10.0" prefHeight="30" />
-	            </rowConstraints>
-
+      <BorderPane MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+         <center>
+            <MGridPane>
+            
+               <columnConstraints>
+                  <ColumnConstraints maxWidth="400" minWidth="100" prefWidth="300" />
+                  <ColumnConstraints hgrow="ALWAYS" />
+               </columnConstraints>
+               <rowConstraints>
+            	   <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+               </rowConstraints>
+            
                <children>
-                  <Button fx:id="backSolverBtn" mnemonicParsing="false" prefHeight="29.0" prefWidth="200.0" text="&lt; Back to solver selection" MGridPane.rowIndex="0">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Button>
-                  <Pane fx:id="paramPane" focusTraversable="true" layoutY="28.0" prefHeight="399.0" prefWidth="200.0" MGridPane.rowIndex="1" />
-	               <Button fx:id="startBtn" defaultButton="true" mnemonicParsing="false" text="Start" MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0" MGridPane.rowIndex="2" />
+            
+            	   <!-- TSP Sidebar -->
+                  <MAnchorPane focusTraversable="true" MGridPane.columnIndex="0">
+                     <children>
+            
+            	         <!-- Solver selection -->
+            	        <MGridPane fx:id="selectionGPane" MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+            	           <columnConstraints>
+            	              <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+            	           </columnConstraints>
+            	           <rowConstraints>
+            		           <RowConstraints minHeight="10.0" prefHeight="30" vgrow="NEVER" />
+            		           <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+            	           </rowConstraints>
+            
+            	           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Select a solver type:" MGridPane.rowIndex="0" />
+            	                 <ListView fx:id="solverList" visible="false" MAnchorPane.bottomAnchor="5.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0" MGridPane.rowIndex="1" />
+            	           </children>
+            	        </MGridPane>
+            
+            			<!-- Solver parameters -->
+                        <MGridPane fx:id="paramsGPane" MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+            
+            	            <columnConstraints>
+            		            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+            	            </columnConstraints>
+            	            <rowConstraints>
+            		            <RowConstraints minHeight="10.0" prefHeight="30" />
+            		            <RowConstraints minHeight="10.0" vgrow="ALWAYS" />
+            		            <RowConstraints minHeight="10.0" prefHeight="30" />
+            	            </rowConstraints>
+            
+                           <children>
+                              <Button fx:id="backSolverBtn" mnemonicParsing="false" prefHeight="29.0" prefWidth="200.0" text="&lt; Back to solver selection" MGridPane.rowIndex="0">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                              </Button>
+                              <Pane fx:id="paramPane" focusTraversable="true" layoutY="28.0" prefHeight="399.0" prefWidth="200.0" MGridPane.rowIndex="1" />
+            	               <Button fx:id="startBtn" defaultButton="true" mnemonicParsing="false" text="Start" MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0" MGridPane.rowIndex="2" />
+                           </children>
+            
+                        </MGridPane>
+            
+                     </children>
+            
+                  </MAnchorPane>
+            
+            	   <!-- TSP Viewer -->
+                  <MAnchorPane focusTraversable="true" MGridPane.columnIndex="1">
+                     <StackPane MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
+                        <children>
+                              <WebView fx:id="webViewer" minHeight="10" minWidth="10" />
+                        </children>
+                     </StackPane>
+                  </MAnchorPane>
+            
                </children>
-
             </MGridPane>
-
-         </children>
-
-      </MAnchorPane>
-
-	   <!-- TSP Viewer -->
-      <MAnchorPane focusTraversable="true" MGridPane.columnIndex="1">
-         <StackPane MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">
-            <children>
-                  <WebView fx:id="webViewer" minHeight="10" minWidth="10" />
-            </children>
-         </StackPane>
-      </MAnchorPane>
-
+         </center>
+         <top>
+            <MenuBar BorderPane.alignment="CENTER">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#onCloseWindowRequest" text="Close" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#onOpenTspProblemRequest" text="Open TSP Problem" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#onAboutRequest" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+         </top>
+      </BorderPane>
    </children>
-</MGridPane>
+</MAnchorPane>
