@@ -24,8 +24,8 @@ public class AntColonySolverTester extends ATspSolver {
 
 	@Override
 	public void startSolving(TspGraph graph) {
-		log("the Tester solver received a startSolving request for the following graph");
-		log(graph);
+		log("the Tester solver received a startSolving request for the following graph (as JS)");
+		log(graph.getD3String());
 		this.notifyNewGraphState(graph);
 		this.notifySolverDone();
 	}

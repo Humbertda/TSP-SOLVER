@@ -3,24 +3,49 @@ package com.humbertdany.sarl.tsp.solver.aco.sarl
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
-import com.humbertdany.sarl.tsp.core.graph.Graph
 import com.humbertdany.sarl.tsp.solver.aco.AntColonyTspSolver
 import io.sarl.core.DefaultContextInteractions
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters
 import io.sarl.core.Schedules
 import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener
+import com.humbertdany.sarl.tsp.tspgraph.TspGraph
+import io.sarl.core.InnerContextAccess
+import io.sarl.core.ExternalContextAccess
 
 event NewTick {
 	
 }
 
+event NewTspProblemParameters {
+	var params : AcoParameters
+}
+
 agent Launcher {
 	
-	uses Logging, Lifecycle, DefaultContextInteractions, Schedules
+	uses Logging, Lifecycle, DefaultContextInteractions, Schedules, InnerContextAccess, ExternalContextAccess
 
+	/**
+	 * Store all the variables
+	 * that will require to be triggered
+	 * on the new states (the solver, etc.)
+	 * ! These should only be Java object
+	 * if a SARL require it, use the Events
+	 * to benefit of parallelism 
+	 */
 	var listeners = <EnvironmentListener>newArrayList
 	
+	/**
+	 * Store the AntColonyTspSolver reference
+	 * to call some specific method 
+	 * (like sending the actual Graph State)
+	 */
 	var solver : AntColonyTspSolver;
+	
+	/**
+	 * Store the parameters available 
+	 * for the solver
+	 * (Number of ants, etc.)
+	 */
 	var params : AcoParameters; 
 
 	on Initialize {
@@ -28,27 +53,28 @@ agent Launcher {
 		listeners.add(solver)
 		params = solver.parameters
 		emit(new NewTick)
+		solver.setEventSpace(defaultSpace);
 	}
 	
 	on NewTick {
-		
-		// Get the new params if they have changed
-		if (!solver.isAppParametersUpToDate) {
-			info("Querying the new parameters, since they have been updated")
-			params = solver.parameters
-		}
-		
 		info(params)
 		
 		fireNewState
+		// Infinite Loop on New Tick event 
 		in(params.msBetweenTick) [
 			emit(new NewTick)
 		]
 	}
+	
+	on NewTspProblemParameters {
+		info("Launcher received new parameters from the event NewTspProblemParameters")
+		params = occurrence.params;
+	}
 
 	def fireNewState {
 		for (listener : this.listeners) {
-			listener.newGraphState(new Graph)
+			// TODO
+			listener.newGraphState(new TspGraph)
 		}
 	}
 	

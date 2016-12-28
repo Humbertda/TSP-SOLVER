@@ -5,8 +5,6 @@
  */
 ;var tspDrawer = (function (d3, _) {
 	'use strict';
-	
-	// TODO Fix display bugs
 
 	var width = 600,
 	    height = 600,
@@ -70,9 +68,6 @@
 		}, v);
 	};
 	
-	var g = svg.append("g")
-	    .attr("id", "states");
-	
 	function clickMap () {
 		drawCities();
 		var created = createCity({
@@ -134,10 +129,8 @@
 		var rawCities = json['cities'];
 		var rawEdges = json['edges'];
 		cities = [];
-		var maxX = 0;
-		var maxY = 0;
-		var minX = 1000000;
-		var minY = 1000000;
+		var maxX = -100000000;
+		var maxY = -100000000;
 		for(var i = 0; i < rawCities.length; i++){
 			var nfo = rawCities[i].vertexInfo;
 			cities.push(createCity({
@@ -150,26 +143,15 @@
 			if(nfo.y > maxY){
 				maxY = nfo.y;
 			}
-			if(nfo.x < minX){
-				minX = nfo.x;
-			}
-			if(nfo.y < minY){
-				minY = nfo.y;
-			}
 		}
 		edges = [];
 		for(i = 0 ; i < rawEdges.length; i++){
 			edges.push(createPath(rawEdges[i]));
 		}
-		var margin = 0.1;
-		var upMargin = 1+margin;
-		var lowMargin = 1-margin;
-		width = maxX*upMargin;
-		height = maxY*upMargin;
-		var lLeftBox = minX*lowMargin;
-		var lUpBox = minY*lowMargin;
+		width = maxX;
+		height = maxY;
 		optimalCitySize = (width+height)/2*.01;
-		svg.attr("viewBox", lLeftBox + " " + lUpBox + " " + width + " " + height);
+		svg.attr("viewBox", 0 + " " + 0 + " " + maxX + " " + maxY);
 		rect.attr("width", width)
 			.attr("height", height);
 		drawCities();

@@ -13,13 +13,16 @@ import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import io.janusproject.Boot;
 import io.janusproject.util.LoggerCreator;
+import io.sarl.lang.core.EventSpace;
 import javafx.scene.layout.Pane;
 
 public class AntColonyTspSolver extends ATspSolver implements ApplicationParametersObserver<AcoParameters>, EnvironmentListener {
 
 	final private UUID uuid = UUID.randomUUID();
 	
-	final private AcoParameters parameters;
+	private AcoParameters parameters;
+
+	private EventSpace defaultLauncherSpace;
 	
 	private boolean appParametersUpToDate = false;
 
@@ -39,8 +42,13 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 	}
 
 	@Override
-	public void parametersChanged(final AcoParameters newParams) {
-		appParametersUpToDate = false; 
+	public void parametersChanged(final AcoParameters p) {
+		this.parameters = p;
+		if(defaultLauncherSpace != null){
+			final NewTspProblemParameters newParams = new NewTspProblemParameters();
+			newParams.params = p;
+			defaultLauncherSpace.emit(newParams);
+		}
 	}
 	
 	@Override
@@ -74,6 +82,10 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 		} catch (Exception e) {
 			System.exit(-1);
 		}
+	}
+
+	public void setEventSpace(EventSpace defaultLauncherSpace){
+		this.defaultLauncherSpace = defaultLauncherSpace;
 	}
 
 	@Override

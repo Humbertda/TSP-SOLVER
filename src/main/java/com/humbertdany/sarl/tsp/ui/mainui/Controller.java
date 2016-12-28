@@ -11,6 +11,7 @@ import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.ui.aboutpopup.AboutController;
 import com.humbertdany.sarl.tsp.ui.tsppopup.PopupObserver;
 import com.humbertdany.sarl.tsp.ui.tsppopup.TspPopupController;
+import com.humbertdany.utils.jspipe.AJsApplication;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker.State;
@@ -48,7 +49,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 	private WebEngine webEngine;
 
-	private JsApplication jsApp = new JsApplication();
+	private JsApplication jsApp;
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
@@ -65,6 +66,9 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 		startStopBtn.setText(BTN_START);
 		webEngine = webViewer.getEngine();
+		jsApp = new JsApplication(webEngine);
+
+		webViewer.setContextMenuEnabled(false);
 
 		webEngine.load(this.getClass().getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
 		webEngine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
@@ -125,9 +129,13 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	 * Basically, it will send the new layout for the TSP on each
 	 * modification
 	 */
-	public class JsApplication {
+	public class JsApplication extends AJsApplication {
 
 		private ArrayList<String> callbacks = new ArrayList<>();
+
+		public JsApplication(WebEngine we) {
+			super(we);
+		}
 
 		/**
 		 * Send back the new Map defined by the javascript
@@ -252,7 +260,6 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 			solver.stopSolving();
 		}
 	}
-
 
 	@Override
 	public void onTspProblemSolved() {

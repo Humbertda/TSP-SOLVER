@@ -31,7 +31,7 @@ public class MainUI extends Application {
 	        primaryStage.setTitle("TSP Ant Colony Solver");
 	        primaryStage.setScene(new Scene(root, 500, 500));
 		    primaryStage.setMinHeight(500);
-		    primaryStage.setMinWidth(500);
+		    primaryStage.setMinWidth(650);
 	        primaryStage.show();
 
 
