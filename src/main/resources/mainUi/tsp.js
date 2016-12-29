@@ -83,6 +83,7 @@
 	 * Draw all the cities from the cities[] var
 	 */
 	function drawCities() {
+		svg.selectAll('circle').remove();
 		svg.selectAll('circle').data(cities).enter()
 			.append('circle')
 				.attr('cx', function (d) { return d.x; })
@@ -126,6 +127,7 @@
 	
 	function drawState(newState){
 		var json = JSON.parse(newState);
+		console.log(json);
 		var rawCities = json['cities'];
 		var rawEdges = json['edges'];
 		cities = [];

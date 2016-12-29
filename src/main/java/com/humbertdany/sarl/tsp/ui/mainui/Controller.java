@@ -209,6 +209,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 	@Override
 	public void newGraphSelected(final TspGraph graph) {
+		reset();
 		tspGraph = graph;
 		jsApp.sendNewMap(graph);
 	}
@@ -234,6 +235,10 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	private static final String BTN_STOP = "Stop";
 
 	public void onResetBtn(ActionEvent evt){
+		reset();
+	}
+
+	private void reset(){
 		stopSolving();
 		tspGraph = new TspGraph();
 		jsApp.sendNewMap(tspGraph);
