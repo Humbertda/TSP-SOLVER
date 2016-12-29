@@ -20,7 +20,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.Pane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSException;
@@ -29,7 +28,7 @@ import netscape.javascript.JSObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Controller extends JfxController implements PopupObserver, SolverObserver {
+public class Controller extends JfxController implements PopupObserver, SolverObserver, GuiListener {
 
 	private static final String HTML_VIEW_FILENAME = "/mainUi/webView.html";
 
@@ -256,6 +255,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	private void startSolving(){
 		startStopBtn.setText(BTN_STOP);
 		if(solver != null){
+			tspGraph.onGraphChange(solver);
 			solver.startSolving(tspGraph);
 		}
 	}
@@ -263,6 +263,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	private void stopSolving(){
 		startStopBtn.setText(BTN_START);
 		if(solver != null){
+			tspGraph.offGraphChange(solver);
 			solver.stopSolving();
 		}
 	}
@@ -274,7 +275,15 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 	@Override
 	public void onNewGraphState(TspGraph g) {
+		log("A new graph has been received from the Solver");
 		jsApp.sendNewMap(g);
+	}
+
+
+
+	@Override
+	public void closing(MainUI ui) {
+		this.reset();
 	}
 
 }

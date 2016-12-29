@@ -3,7 +3,6 @@ package com.humbertdany.sarl.tsp.solver.aco;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import com.humbertdany.sarl.tsp.core.graph.Graph;
 import com.humbertdany.sarl.tsp.core.params.ApplicationParametersObserver;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
@@ -15,7 +14,6 @@ import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import io.janusproject.Boot;
 import io.janusproject.util.LoggerCreator;
 import io.sarl.lang.core.EventSpace;
-import javafx.scene.layout.Pane;
 
 public class AntColonyTspSolver extends ATspSolver implements ApplicationParametersObserver<AcoParameters>, EnvironmentListener {
 
@@ -24,6 +22,8 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 	private AcoParameters parameters;
 
 	private EventSpace defaultLauncherSpace;
+	
+	private TspGraph graph;
 	
 	private boolean appParametersUpToDate = false;
 
@@ -70,7 +70,7 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 
 	@Override
 	public void startSolving(TspGraph graph) {
-		// TODO implementation of this
+		this.graph = graph;
 		getParameters().watchParametersChange(this);
 		Boot.setOffline(true);
 		Boot.setVerboseLevel(LoggerCreator.toInt(Level.INFO));
@@ -84,6 +84,14 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 			System.exit(-1);
 		}
 	}
+	
+	public void sarlReady(){
+		if(this.defaultLauncherSpace != null){
+			final StartSolvingEvent evt = new StartSolvingEvent(); 
+			evt.graph = graph;
+			this.defaultLauncherSpace.emit(evt);
+		}
+	}
 
 	public void setEventSpace(EventSpace defaultLauncherSpace){
 		this.defaultLauncherSpace = defaultLauncherSpace;
@@ -91,12 +99,24 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 
 	@Override
 	public void stopSolving() {
-		// TODO implementation of this
+		if(this.defaultLauncherSpace != null){
+			this.defaultLauncherSpace.emit(new StopSolvingEvent());
+		}
 	}
 
 	@Override
-	public void newGraphState(final Graph g) {
-		// TODO do something with it
+	public void newGraphState(final TspGraph g) {
+		graph = g;
+		this.notifyNewGraphState(g);
 	}
 
+	@Override
+	public void graphUpdated(TspGraph g) {
+		graph = g;
+		if(this.defaultLauncherSpace != null){
+			final NewGraphState evt = new NewGraphState();
+			evt.graph = g;
+			this.defaultLauncherSpace.emit(evt);
+		}
+	}
 }

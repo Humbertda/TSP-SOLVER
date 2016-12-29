@@ -44,4 +44,8 @@ public class AntColonySolverTester extends ATspSolver {
 		log("Stop solving");
 	}
 
+	@Override
+	public void graphUpdated(TspGraph g) {
+		log("A new Graph State has been defined (new city, new path, etc.), it is now ! \n" + g.toString());
+	}
 }

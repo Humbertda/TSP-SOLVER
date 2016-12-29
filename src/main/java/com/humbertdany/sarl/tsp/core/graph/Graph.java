@@ -1,7 +1,6 @@
 package com.humbertdany.sarl.tsp.core.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.humbertdany.sarl.tsp.ui.mainui.GuiListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,6 +37,9 @@ public class Graph<T> {
 	@JsonIgnore
 	private Vertex<T> rootVertex;
 
+	@JsonIgnore
+	private final List<GraphObserver> graphObservers = new ArrayList<>();
+
 	/**
 	 * Construct a new graph without any vertices or edges
 	 */
@@ -69,6 +71,8 @@ public class Graph<T> {
 		boolean added = false;
 		if (!verticies.contains(v)) {
 			added = verticies.add(v);
+			notifyGraphChange();
+			v.setGraphReference(this); // allow to trigger graph change from vertex
 		}
 		return added;
 	}
@@ -106,6 +110,7 @@ public class Graph<T> {
 		this.rootVertex = root;
 		if (!verticies.contains(root))
 			this.addVertex(root);
+		notifyGraphChange();
 	}
 
 	/**
@@ -156,6 +161,7 @@ public class Graph<T> {
 			from.addEdge(e);
 			to.addEdge(e);
 			edges.add(e);
+			notifyGraphChange();
 			return true;
 		}
 	}
@@ -219,6 +225,7 @@ public class Graph<T> {
 			Vertex<T> predecessor = e.getFrom();
 			predecessor.remove(e);
 		}
+		notifyGraphChange();
 		return true;
 	}
 
@@ -240,6 +247,7 @@ public class Graph<T> {
 			from.remove(e);
 			to.remove(e);
 			edges.remove(e);
+			notifyGraphChange();
 			return true;
 		}
 	}
@@ -254,6 +262,7 @@ public class Graph<T> {
 	public void clearMark() {
 		for (Vertex<T> w : verticies)
 			w.clearMark();
+		notifyGraphChange();
 	}
 
 	/**
@@ -264,6 +273,7 @@ public class Graph<T> {
 	public void clearEdges() {
 		for (Edge<T> e : edges)
 			e.clearMark();
+		notifyGraphChange();
 	}
 
 	/**
@@ -506,5 +516,30 @@ public class Graph<T> {
 		logger = LogManager.getLogger(this.getClass());
 	}
 
+
+
+	// Observer
+
+	@JsonIgnore
+	public final void onGraphChange(GraphObserver obs){
+		this.graphObservers.add(obs);
+	}
+
+	@JsonIgnore
+	public final void offGraphChange(GraphObserver obs){
+		final int i = this.graphObservers.indexOf(obs);
+		if(i >= 0){
+			this.graphObservers.remove(i);
+		}
+	}
+
+	@JsonIgnore
+	final void notifyGraphChange(){
+		if(this.graphObservers.size() != 0){
+			for(GraphObserver g : this.graphObservers){
+				g.graphUpdated(this);
+			}
+		}
+	}
 
 }

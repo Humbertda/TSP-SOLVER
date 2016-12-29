@@ -2,6 +2,7 @@ package com.humbertdany.sarl.tsp.solver;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.humbertdany.sarl.tsp.core.graph.GraphObserver;
 import com.humbertdany.sarl.tsp.core.params.AApplicationParameters;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-abstract public class ATspSolver {
+abstract public class ATspSolver implements GraphObserver<TspGraph> {
 
 	private Logger logger;
 

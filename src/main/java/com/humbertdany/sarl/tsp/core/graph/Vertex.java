@@ -2,6 +2,7 @@ package com.humbertdany.sarl.tsp.core.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,9 @@ import java.util.List;
  * @param <T>
  */
 public class Vertex<T> {
+
+	@JsonIgnore
+	private Graph<T> owner;
 
 	@JsonIgnore
 	private List<Edge<T>> incomingEdges;
@@ -103,11 +107,13 @@ public class Vertex<T> {
 	 */
 	@JsonIgnore
 	public boolean addEdge(Edge<T> e) {
-		if (e.getFrom() == this)
+		if (e.getFrom() == this) {
 			outgoingEdges.add(e);
-		else if (e.getTo() == this)
+			owner.notifyGraphChange();
+		} else if (e.getTo() == this) {
 			incomingEdges.add(e);
-		else
+			owner.notifyGraphChange();
+		} else
 			return false;
 		return true;
 	}
@@ -122,8 +128,9 @@ public class Vertex<T> {
 	 */
 	@JsonIgnore
 	public void addOutgoingEdge(Vertex<T> to, int cost) {
-		Edge<T> out = new Edge<T>(this, to, cost);
+		Edge<T> out = new Edge<>(this, to, cost);
 		outgoingEdges.add(out);
+		owner.notifyGraphChange();
 	}
 
 	/**
@@ -136,8 +143,9 @@ public class Vertex<T> {
 	 */
 	@JsonIgnore
 	public void addIncomingEdge(Vertex<T> from, int cost) {
-		Edge<T> out = new Edge<T>(this, from, cost);
+		Edge<T> out = new Edge<>(this, from, cost);
 		incomingEdges.add(out);
+		owner.notifyGraphChange();
 	}
 
 	/**
@@ -167,11 +175,13 @@ public class Vertex<T> {
 	 */
 	@JsonIgnore
 	public boolean remove(Edge<T> e) {
-		if (e.getFrom() == this)
+		if (e.getFrom() == this) {
 			incomingEdges.remove(e);
-		else if (e.getTo() == this)
+			owner.notifyGraphChange();
+		} else if (e.getTo() == this) {
 			outgoingEdges.remove(e);
-		else
+			owner.notifyGraphChange();
+		} else
 			return false;
 		return true;
 	}
@@ -252,6 +262,11 @@ public class Vertex<T> {
 				return e;
 		}
 		return null;
+	}
+
+	@JsonIgnore
+	void setGraphReference(Graph<T> t){
+		this.owner = t;
 	}
 
 	/**

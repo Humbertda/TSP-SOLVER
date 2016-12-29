@@ -36,6 +36,8 @@ public class MainUI extends Application {
 		    primaryStage.setMinWidth(650);
 	        primaryStage.show();
 
+		    this.onClosingEvent(controller);
+
 
 		} catch (Exception e) {
 			// Well, the app can't launch, what's going on?

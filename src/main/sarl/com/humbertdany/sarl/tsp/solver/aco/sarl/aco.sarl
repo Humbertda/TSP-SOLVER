@@ -11,13 +11,27 @@ import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph
 import io.sarl.core.InnerContextAccess
 import io.sarl.core.ExternalContextAccess
+import javafx.application.Platform
+import java.util.ArrayList
 
 event NewTick {
 	
 }
 
+event StopSolvingEvent {
+	
+}
+
 event NewTspProblemParameters {
 	var params : AcoParameters
+}
+
+event NewGraphState {
+	var graph : TspGraph
+}
+
+event StartSolvingEvent {
+	var graph : TspGraph
 }
 
 agent Launcher {
@@ -47,13 +61,32 @@ agent Launcher {
 	 * (Number of ants, etc.)
 	 */
 	var params : AcoParameters; 
+	
+	/**
+	 * The TspGraph currently solving
+	 */
+	var graph : TspGraph;
 
 	on Initialize {
 		solver = occurrence.parameters.get(0) as AntColonyTspSolver;
 		listeners.add(solver)
 		params = solver.parameters
-		emit(new NewTick)
 		solver.setEventSpace(defaultSpace);
+		solver.sarlReady();
+	}
+	
+	on NewGraphState {
+		info("A new graph state has been sent by the Aco Controller");
+		graph = occurrence.graph;
+	}
+	
+	on StopSolvingEvent {
+		killMe
+	}
+	
+	on StartSolvingEvent {
+		this.graph = occurrence.graph 
+		emit(new NewTick)
 	}
 	
 	on NewTick {
@@ -72,10 +105,33 @@ agent Launcher {
 	}
 
 	def fireNewState {
-		for (listener : this.listeners) {
-			// TODO
-			listener.newGraphState(new TspGraph)
+		if (graph != null) {
+			Platform.runLater(new JfxInfoRunnable(listeners, graph));
+		} else {
+			info("The graph is currently 'null'")
 		}
 	}
+}
+
+/**
+ * Runnable used to inform the main Application
+ * (running on JavaFX Thread) 
+ * of all the changes we have to 
+ */
+class JfxInfoRunnable implements Runnable {
+
+	var listeners : ArrayList<EnvironmentListener>
+	var graph : TspGraph
+
+	new(listeners : ArrayList<EnvironmentListener>, graph: TspGraph) {
+		this.listeners = listeners;
+		this.graph = graph;
+	}
 	
+	override run {
+		for (listener : this.listeners) {
+			listener.newGraphState(graph)
+		}
+	}
+
 }
