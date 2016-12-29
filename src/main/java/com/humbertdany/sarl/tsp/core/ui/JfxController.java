@@ -1,7 +1,6 @@
 package com.humbertdany.sarl.tsp.core.ui;
 
 import com.humbertdany.sarl.tsp.ui.icon.AppIconLib;
-import com.humbertdany.sarl.tsp.ui.tsppopup.TspPopupController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;

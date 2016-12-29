@@ -2,7 +2,6 @@ package com.humbertdany.utils.sort;
 
 import com.humbertdany.utils.factory.ArrayFactory;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 /**

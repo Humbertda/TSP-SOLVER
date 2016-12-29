@@ -1,4 +1,7 @@
-import com.humbertdany.sarl.tsp.core.graph.*;
+import com.humbertdany.sarl.tsp.core.graph.Edge;
+import com.humbertdany.sarl.tsp.core.graph.Graph;
+import com.humbertdany.sarl.tsp.core.graph.Vertex;
+import com.humbertdany.sarl.tsp.core.graph.Visitor;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;

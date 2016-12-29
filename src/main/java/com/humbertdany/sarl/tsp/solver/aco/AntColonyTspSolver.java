@@ -1,19 +1,18 @@
 package com.humbertdany.sarl.tsp.solver.aco;
 
-import java.util.UUID;
-import java.util.logging.Level;
-
 import com.humbertdany.sarl.tsp.core.params.ApplicationParametersObserver;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.*;
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
+import com.humbertdany.sarl.tsp.solver.aco.sarl.*;
 import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
-
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import io.janusproject.Boot;
 import io.janusproject.util.LoggerCreator;
 import io.sarl.lang.core.EventSpace;
+
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class AntColonyTspSolver extends ATspSolver implements ApplicationParametersObserver<AcoParameters>, EnvironmentListener {
 

@@ -6,13 +6,10 @@ import com.humbertdany.sarl.tsp.core.graph.GraphObserver;
 import com.humbertdany.sarl.tsp.core.params.AApplicationParameters;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
-import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 abstract public class ATspSolver implements GraphObserver<TspGraph> {
 
