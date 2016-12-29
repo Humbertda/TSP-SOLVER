@@ -1,6 +1,8 @@
 package com.humbertdany.sarl.tsp.ui.mainui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.humbertdany.sarl.tsp.core.graph.Edge;
+import com.humbertdany.sarl.tsp.core.graph.Vertex;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.core.ui.MGridPane;
@@ -9,6 +11,7 @@ import com.humbertdany.sarl.tsp.solver.SolverObserver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
+import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 import com.humbertdany.sarl.tsp.ui.aboutpopup.AboutController;
 import com.humbertdany.sarl.tsp.ui.tsppopup.PopupObserver;
 import com.humbertdany.sarl.tsp.ui.tsppopup.TspPopupController;
@@ -67,8 +70,6 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		startStopBtn.setText(BTN_START);
 		webEngine = webViewer.getEngine();
 		jsApp = new JsApplication(webEngine);
-
-		webViewer.setContextMenuEnabled(false);
 
 		webEngine.load(this.getClass().getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
 		webEngine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
@@ -143,10 +144,38 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		 * to SARL so it can update it own values
 		 * @param arg String
 		 */
-		public void sendNewTspMap(final String arg) {
+		public void sendNewTspMap(final String action, final String arg) {
 			try {
-				final CityEntry cityEntry = mapper.readValue(arg, CityEntry.class);
-				tspGraph.addVertex(new TspVertex("City in " + cityEntry.toString(), cityEntry.makeVertexInfo()));
+				switch (action.toLowerCase()){
+					case "create city":
+						CityEntry cityEntry = mapper.readValue(arg, CityEntry.class);
+						tspGraph.addVertex(new TspVertex("City in " + cityEntry.toString(), cityEntry.makeVertexInfo()));
+						break;
+					case "city updated":
+						CityEntry cEntry = mapper.readValue(arg, CityEntry.class);
+						final TspVertex vertexByData = (TspVertex) tspGraph.findVertexByName(cEntry.getName());
+						vertexByData.getData().setX(cEntry.getX());
+						vertexByData.getData().setY(cEntry.getY());
+						break;
+					case "link removed":
+						PathEntry pathEntry = mapper.readValue(arg, PathEntry.class);
+						tspGraph.removeEdge(
+								tspGraph.findVertexByName(pathEntry.getFrom().getName()),
+								tspGraph.findVertexByName(pathEntry.getTo().getName())
+						);
+						break;
+					case "link city":
+						CityEntry[] entries = mapper.readValue(arg, CityEntry[].class);
+						if(entries[0] != null && entries[1] != null){
+							tspGraph.addEdge(
+									tspGraph.findVertexByName(entries[0].getName()),
+									tspGraph.findVertexByName(entries[1].getName())
+							);
+						}
+						break;
+					default:
+						logError("The action '" + action + "' could not be recognized by Java App");
+				}
 				jsApp.sendNewMap(tspGraph);
 			} catch (IOException e) {
 				logError(e.getMessage());
@@ -176,7 +205,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 				try {
 					webEngine.executeScript(s + "('" + toSend +"')");
 				} catch (JSException e){
-					logError(e.getMessage() + "Map sent: " +toSend);
+					logError(e.getMessage() + "Map sent: " + toSend);
 				}
 
 			}

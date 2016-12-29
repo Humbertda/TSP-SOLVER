@@ -66,12 +66,10 @@ public class TspGraph extends Graph<VertexInfo> implements D3GraphDisplayable {
 	private static class TspJsonEdge {
 		private TspVertex from;
 		private TspVertex to;
-		private int cost;
 
 		TspJsonEdge(Edge<VertexInfo> e){
 			this.from = (TspVertex) e.getFrom();
 			this.to = (TspVertex) e.getTo();
-			this.cost = e.getCost();
 		}
 
 		public TspVertex getFrom() {
@@ -90,12 +88,5 @@ public class TspGraph extends Graph<VertexInfo> implements D3GraphDisplayable {
 			this.to = to;
 		}
 
-		public int getCost() {
-			return cost;
-		}
-
-		public void setCost(int cost) {
-			this.cost = cost;
-		}
 	}
 }

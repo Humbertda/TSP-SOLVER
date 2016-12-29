@@ -1,31 +1,28 @@
+package com.humbertdany.sarl.tsp.core.helper;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-abstract class ATest {
+class AHelper {
 
 	static private Logger logger;
 
-	static private void initLogger(){
-		logger = LogManager.getLogger(ATest.class);
+	private void initLogger(){
+		logger = LogManager.getLogger(this.getClass());
 	}
 
-
-	static void log(final Object o){
+	void log(final Object o){
 		if(logger == null){
 			initLogger();
 		}
 		logger.info("\n" + o.toString());
 	}
 
-	static  void logError(final Object o){
+	void logError(final Object o){
 		if(logger == null){
 			initLogger();
 		}
 		logger.error("\n" + o.toString());
-	}
-
-	static void newLine(){
-		System.out.println("\n--\n");
 	}
 
 }

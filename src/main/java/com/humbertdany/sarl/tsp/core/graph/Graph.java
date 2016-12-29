@@ -139,22 +139,19 @@ public class Graph<T> {
 	 *
 	 * @param from -
 	 *          the Edge<T> starting vertex
-	 * @param to -
-	 *          the Edge<T> ending vertex
-	 * @param cost -
 	 *          the Edge<T> weight/cost
 	 * @return true if the Edge<T> was added, false if from already has this Edge<T>
 	 * @throws IllegalArgumentException
 	 *           if from/to are not verticies in the graph
 	 */
 	@JsonIgnore
-	public boolean addEdge(Vertex<T> from, Vertex<T> to, int cost) throws IllegalArgumentException {
+	public boolean addEdge(Vertex<T> from, Vertex<T> to) throws IllegalArgumentException {
 		if (!verticies.contains(from))
 			throw new IllegalArgumentException("from is not in graph");
 		if (!verticies.contains(to))
 			throw new IllegalArgumentException("to is not in graph");
 
-		Edge<T> e = new Edge<>(from, to, cost);
+		Edge<T> e = new Edge<>(from, to);
 		if (from.findEdge(to) != null)
 			return false;
 		else {
@@ -173,16 +170,14 @@ public class Graph<T> {
 	 *          the Edge<T> starting vertex
 	 * @param to -
 	 *          the Edge<T> ending vertex
-	 * @param cost -
-	 *          the Edge<T> weight/cost
 	 * @return true if edges between both nodes were added, false otherwise
 	 * @throws IllegalArgumentException
 	 *           if from/to are not verticies in the graph
 	 */
 	@JsonIgnore
-	public boolean insertBiEdge(Vertex<T> from, Vertex<T> to, int cost)
+	public boolean insertBiEdge(Vertex<T> from, Vertex<T> to)
 			throws IllegalArgumentException {
-		return addEdge(from, to, cost) && addEdge(to, from, cost);
+		return addEdge(from, to) && addEdge(to, from);
 	}
 
 	/**

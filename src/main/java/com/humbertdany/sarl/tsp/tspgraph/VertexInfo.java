@@ -1,5 +1,6 @@
 package com.humbertdany.sarl.tsp.tspgraph;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class VertexInfo {
@@ -9,6 +10,9 @@ public class VertexInfo {
 
 	@JsonInclude
 	private double y;
+
+	@JsonIgnore
+	private double cost;
 
 	public VertexInfo(double x, double y){
 		this.x = x;
@@ -29,7 +33,22 @@ public class VertexInfo {
 		return x;
 	}
 
+	public void setX(double x) {
+		this.x = x;
+		updateCost();
+	}
+
+	public void setY(double y) {
+		this.y = y;
+		updateCost();
+	}
+
+	private void updateCost(){
+
+	}
+
 	public String toString(){
 		return "{x=" + x + " ; y=" + y + "}";
 	}
+
 }

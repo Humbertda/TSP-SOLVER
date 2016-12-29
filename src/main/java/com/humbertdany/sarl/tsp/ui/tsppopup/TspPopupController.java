@@ -124,13 +124,16 @@ public class TspPopupController extends JfxController {
 		final ObservableList<TsplibListItem> list = FXCollections.observableArrayList();
 		list.addAll(TspCommonLibrary.getAllCommonProblem().stream().map(TsplibListItem::fromTspProblem).collect(Collectors.toList()));
 		listViewProblemLibrary.setItems(list);
+		final TsplibListItem[] problemSelected = {null};
 		listViewProblemLibrary.setOnMouseClicked(event -> {
-			TsplibListItem problemSelected = listViewProblemLibrary.getSelectionModel().getSelectedItem();
-			if(problemSelected != null){
-				temporarySelectedGraph = problemSelected.generateGraph();
-			}
+			problemSelected[0] = listViewProblemLibrary.getSelectionModel().getSelectedItem();
 		});
-		this.bindButton(loadProblemLibBtn, e -> validGraphSelection());
+		this.bindButton(loadProblemLibBtn, e -> {
+			if(problemSelected[0] != null){
+				temporarySelectedGraph = problemSelected[0].generateGraph();
+			}
+			validGraphSelection();
+		});
 
 	}
 

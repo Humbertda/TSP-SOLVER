@@ -4,6 +4,37 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
+
+        .hidden {
+            display: none !important;
+        }
+
+        .custom-menu {
+            display: none;
+            z-index: 1000;
+            position: absolute;
+            overflow: hidden;
+            border: 1px solid #CCC;
+            white-space: nowrap;
+            font-family: sans-serif;
+            background: #FFF;
+            color: #333;
+            border-radius: 5px;
+            padding: 0;
+        }
+
+        /* Each of the items in the list */
+        .custom-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style-type: none;
+            transition: all .3s ease;
+        }
+
+        .custom-menu li:hover {
+            background-color: #DEF;
+        }
+
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             margin: 0;
@@ -13,10 +44,10 @@
 
             /** Full Container width Fixed **/
             position: fixed;
-            top:0;
-            bottom:0;
-            left:0;
-            right:0;
+            top:2%;
+            bottom:2%;
+            left:2%;
+            right:2%;
         }
         div {
             /** Css borders inside **/
@@ -48,9 +79,8 @@
         .svg-container > svg {
             display: inline-block !important;
         }
-        path.connection {
-            stroke: rgba(0,0,0,.3);
-            fill: none;
+        circle.hoverable:hover {
+            opacity: .5;
         }
     </style>
 </head>
@@ -61,8 +91,15 @@
     </section>
 </div>
 
+<ul class='custom-menu'>
+    <li data-action="addNewCity">Create City Here</li>
+    <li data-action="linkCityTo" id="cm-linkCity">Link this City</li>
+    <li data-action="removeLink" id="cm-removeLink">Remove this link</li>
+</ul>
+
 <script src="d3.min.js" type="application/javascript"></script>
 <script src="underscore.min.js" type="application/javascript"></script>
+<script src="jquery-3.1.1.min.js" type="application/javascript"></script>
 <script src="tsp.js" type="application/javascript"></script>
 <script>
 
@@ -102,8 +139,8 @@
             onMapChange: function(arg){
                 _jap.onMapChange(getFunctionName(arg));
             },
-            sendNewTspMap: function(arg){
-                _jap.sendNewTspMap(JSON.stringify(arg));
+            sendNewTspMap: function(action, arg){
+                _jap.sendNewTspMap(action, JSON.stringify(arg));
             }
         }
     }
@@ -121,8 +158,9 @@
                 onMapChange: function(arg){
                     info(arg);
                 },
-                sendNewTspMap: function(arg){
-                    info(arg);
+                sendNewTspMap: function(action, arg){
+                    info(action);
+                    info(JSON.parse(arg));
                 }
             }
         }
@@ -140,7 +178,7 @@
     // App functions | Those one should exchange with JavaFX
 
     /**
-     * Called when the data from the TSP map
+     * Called when the data from the TSP mapC
      * changed in Java
      * Should callback a redraw
      * @param args
@@ -154,10 +192,12 @@
      * the map state is updated in the tsp.js
      * And should send back to JavaFX the new
      * State
-     * @param e
+     * @param action the action sent
+     * @param e the string arg
      */
-    function onMapModification(e){
-        app.sendNewTspMap(e);
+    function onMapModification(action, e){
+        console.log(action);
+        app.sendNewTspMap(action, e);
     }
 
     /**

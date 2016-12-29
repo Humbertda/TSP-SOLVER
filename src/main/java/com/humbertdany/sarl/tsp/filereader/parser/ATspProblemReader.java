@@ -1,7 +1,7 @@
 package com.humbertdany.sarl.tsp.filereader.parser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.humbertdany.sarl.tsp.filereader.DistanceHelper;
+import com.humbertdany.sarl.tsp.core.helper.DistanceHelper;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
@@ -48,7 +48,7 @@ abstract public class ATspProblemReader implements ITspFileReader {
 			temporaryCostArray = new ArrayList<>();
 			for (Record r : records) {
 				if(!Objects.equals(("City " + rIndex), v.getName())){
-					int cost = DistanceHelper.calculateRoundEuclideanDistance(r.x, r.y, v.getData().getX(), v.getData().getY());
+					double cost = DistanceHelper.calculateEuclideanDistance(r.x, r.y, v.getData().getX(), v.getData().getY());
 					temporaryCostArray.add(new Elem(bIndex, cost));
 					bIndex++;
 				}
@@ -61,7 +61,7 @@ abstract public class ATspProblemReader implements ITspFileReader {
 			sort.toArray(sorted);
 			for(int i = 0; i < 3; i++){
 				final Elem e = sorted[i];
-				graph.addEdge(v, vertices[e.idInArray], e.cost);
+				graph.addEdge(v, vertices[e.idInArray]);
 			}
 		}
 
@@ -74,9 +74,9 @@ abstract public class ATspProblemReader implements ITspFileReader {
 	 */
 	private static class Elem implements Comparable<Elem> {
 		private Integer idInArray;
-		private Integer cost;
+		private Double cost;
 
-		public Elem(int idInArray, int cost) {
+		public Elem(int idInArray, double cost) {
 			this.idInArray = idInArray;
 			this.cost = cost;
 		}

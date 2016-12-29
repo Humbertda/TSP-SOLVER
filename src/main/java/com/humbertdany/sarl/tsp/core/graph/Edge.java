@@ -18,24 +18,8 @@ public class Edge<T> {
 	@JsonInclude
 	private Vertex<T> to;
 
-	@JsonInclude
-	private int cost;
-
 	@JsonIgnore
 	private boolean mark;
-
-	/**
-	 * Create a zero cost edge between from and to
-	 *
-	 * @param from
-	 *          the starting vertex
-	 * @param to
-	 *          the ending vertex
-	 */
-	@JsonIgnore
-	public Edge(Vertex<T> from, Vertex<T> to) {
-		this(from, to, 0);
-	}
 
 	/**
 	 * Create an edge between from and to with the given cost.
@@ -44,14 +28,11 @@ public class Edge<T> {
 	 *          the starting vertex
 	 * @param to
 	 *          the ending vertex
-	 * @param cost
-	 *          the cost of the edge
 	 */
 	@JsonIgnore
-	public Edge(Vertex<T> from, Vertex<T> to, int cost) {
+	public Edge(Vertex<T> from, Vertex<T> to) {
 		this.from = from;
 		this.to = to;
-		this.cost = cost;
 		mark = false;
 	}
 
@@ -81,8 +62,8 @@ public class Edge<T> {
 	 * @return cost of the edge
 	 */
 	@JsonInclude
-	public int getCost() {
-		return cost;
+	public double getCost() {
+		return this.getFrom().getCostTo(this.getTo());
 	}
 
 	/**
@@ -125,7 +106,7 @@ public class Edge<T> {
 		tmp.append(",to: ");
 		tmp.append(to.getName());
 		tmp.append(", cost: ");
-		tmp.append(cost);
+		tmp.append(getCost());
 		tmp.append("]");
 		return tmp.toString();
 	}

@@ -12,6 +12,12 @@ public class CityEntry {
 	@JsonInclude
 	double y;
 
+	@JsonInclude
+	String name;
+
+	@JsonInclude
+	int id;
+
 	public CityEntry(){
 		this(0,0);
 	}
@@ -30,8 +36,29 @@ public class CityEntry {
 		this.x = x;
 	}
 
+	@JsonInclude
 	public double getY() {
 		return y;
+	}
+
+	@JsonInclude
+	public String getName() {
+		return name;
+	}
+
+	@JsonInclude
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@JsonInclude
+	public int getId() {
+		return id;
+	}
+
+	@JsonInclude
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	@JsonInclude

@@ -2,7 +2,6 @@ package com.humbertdany.sarl.tsp.core.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,12 +122,10 @@ public class Vertex<T> {
 	 *
 	 * @param to -
 	 *          the destination vertex
-	 * @param cost
-	 *          the edge cost
 	 */
 	@JsonIgnore
-	public void addOutgoingEdge(Vertex<T> to, int cost) {
-		Edge<T> out = new Edge<>(this, to, cost);
+	public void addOutgoingEdge(Vertex<T> to) {
+		Edge<T> out = new Edge<>(this, to);
 		outgoingEdges.add(out);
 		owner.notifyGraphChange();
 	}
@@ -138,12 +135,10 @@ public class Vertex<T> {
 	 *
 	 * @param from -
 	 *          the starting vertex
-	 * @param cost
-	 *          the edge cost
 	 */
 	@JsonIgnore
-	public void addIncomingEdge(Vertex<T> from, int cost) {
-		Edge<T> out = new Edge<>(this, from, cost);
+	public void addIncomingEdge(Vertex<T> from) {
+		Edge<T> out = new Edge<>(this, from);
 		incomingEdges.add(out);
 		owner.notifyGraphChange();
 	}
@@ -293,12 +288,12 @@ public class Vertex<T> {
 	 *         this vertex, the cost of the outgoing edge otherwise.
 	 */
 	@JsonIgnore
-	public int cost(Vertex<T> dest) {
+	public double cost(Vertex<T> dest) {
 		if (dest == this)
 			return 0;
 
 		Edge<T> e = findEdge(dest);
-		int cost = Integer.MAX_VALUE;
+		double cost = Integer.MAX_VALUE;
 		if (e != null)
 			cost = e.getCost();
 		return cost;
@@ -398,6 +393,10 @@ public class Vertex<T> {
 		}
 		tmp.append(']');
 		return tmp.toString();
+	}
+
+	public double getCostTo(Vertex<T> v){
+		return 0; // This should be implemented
 	}
 
 	@JsonIgnore

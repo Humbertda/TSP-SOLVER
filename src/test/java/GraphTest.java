@@ -13,11 +13,11 @@ public class GraphTest extends ATest {
 
 		final List<TspVertex> points = new ArrayList<>();
 
-		final TspVertex belfort = new TspVertex("Belfort", new VertexInfo(1.0, 1.0));
-		final TspVertex besancon = new TspVertex("Besancon", new VertexInfo(1.0, 2.0));
-		final TspVertex champagnole = new TspVertex("Champagnole", new VertexInfo(2.0, 1.0));
-		final TspVertex dijon = new TspVertex("Dijon", new VertexInfo(2.0, 2.0));
-		final TspVertex geneve = new TspVertex("Genève", new VertexInfo(1.5, 1.5));
+		final TspVertex belfort = new TspVertex("Belfort", new VertexInfo(100.0, 100.0));
+		final TspVertex besancon = new TspVertex("Besancon", new VertexInfo(100.0, 200.0));
+		final TspVertex champagnole = new TspVertex("Champagnole", new VertexInfo(200.0, 100.0));
+		final TspVertex dijon = new TspVertex("Dijon", new VertexInfo(200.0, 200.0));
+		final TspVertex geneve = new TspVertex("Genève", new VertexInfo(100.5, 100.5));
 
 		points.addAll(Arrays.asList(belfort, besancon, champagnole, dijon, geneve));
 
@@ -25,12 +25,12 @@ public class GraphTest extends ATest {
 
 		g.addAllVertex(points);
 
-		g.insertBiEdge(belfort, besancon, 50);
-		g.insertBiEdge(besancon, champagnole, 25);
-		g.insertBiEdge(champagnole, geneve, 15);
-		g.insertBiEdge(belfort, geneve, 23);
-		g.insertBiEdge(dijon, belfort, 50);
-		g.insertBiEdge(dijon, champagnole, 40);
+		g.insertBiEdge(belfort, besancon);
+		g.insertBiEdge(besancon, champagnole);
+		g.insertBiEdge(champagnole, geneve);
+		g.insertBiEdge(belfort, geneve);
+		g.insertBiEdge(dijon, belfort);
+		g.insertBiEdge(dijon, champagnole);
 
 		g.setRootVertex(belfort);
 

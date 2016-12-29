@@ -27,5 +27,6 @@ You can go on the Heidelberg University webpage to find some TSP Files ready to 
 - JavaFX
 - Javascript
     - [D3.js](https://d3js.org/)
+    - [jQuery](https://jquery.com/)
     - [Underscore.js](http://underscorejs.org/)
     - [Vanantan16 TSP Demo](https://github.com/yanatan16/d3-tsp-demo)
