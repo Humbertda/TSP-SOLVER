@@ -90,7 +90,7 @@ AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="
 			                           </Button>
 		                           </children>
 	                           </MAnchorPane>
-                              <Pane fx:id="paramPane" focusTraversable="true" MGridPane.rowIndex="1" />
+                              <MAnchorPane fx:id="paramPane" focusTraversable="true" MGridPane.rowIndex="1" />
                               <MAnchorPane MGridPane.rowIndex="2">
                                  <children>
                                     <FlowPane alignment="CENTER" focusTraversable="true" MAnchorPane.bottomAnchor="0.0" MAnchorPane.leftAnchor="0.0" MAnchorPane.rightAnchor="0.0" MAnchorPane.topAnchor="0.0">

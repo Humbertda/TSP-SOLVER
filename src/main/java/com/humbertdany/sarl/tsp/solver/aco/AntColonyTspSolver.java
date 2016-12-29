@@ -5,6 +5,7 @@ import java.util.logging.Level;
 
 import com.humbertdany.sarl.tsp.core.graph.Graph;
 import com.humbertdany.sarl.tsp.core.params.ApplicationParametersObserver;
+import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.aco.sarl.*;
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
@@ -31,7 +32,7 @@ public class AntColonyTspSolver extends ATspSolver implements ApplicationParamet
 	}
 
 	@Override
-	public void buildGui(final Pane ctrl) {
+	public void buildGui(final MAnchorPane ctrl) {
 		final AcoGuiController gCtrl = new AcoGuiController(this);
 		gCtrl.build(ctrl);
 	}

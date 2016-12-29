@@ -1,9 +1,12 @@
 package com.humbertdany.sarl.tsp.solver.tester;
 
 import com.humbertdany.sarl.tsp.core.params.AApplicationParameters;
+import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 public class AntColonySolverTester extends ATspSolver {
 
@@ -13,8 +16,14 @@ public class AntColonySolverTester extends ATspSolver {
 	}
 
 	@Override
-	public void buildGui(final Pane ctrl) {
-
+	public void buildGui(final MAnchorPane ctrl) {
+		final TextFlow tf = new TextFlow();
+		tf.getChildren().addAll(
+				new Text("This is a solver tester, "),
+				new Text("Used to debug and develop."),
+				new Text("It does not solve TSP, it only send the events to the Logger")
+		);
+		ctrl.add(tf, 5.0);
 	}
 
 	@Override

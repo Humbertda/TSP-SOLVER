@@ -3,6 +3,7 @@ package com.humbertdany.sarl.tsp.solver;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.humbertdany.sarl.tsp.core.params.AApplicationParameters;
+import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +23,7 @@ abstract public class ATspSolver {
 
 	public abstract AApplicationParameters getParameters();
 
-	abstract public void buildGui(final Pane ctrl);
+	abstract public void buildGui(final MAnchorPane ctrl);
 
 	final public String toString(){
 		return this.getSolverName() == null ? "Null" : this.getSolverName();

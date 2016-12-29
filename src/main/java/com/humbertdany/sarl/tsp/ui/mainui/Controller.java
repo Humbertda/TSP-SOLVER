@@ -2,6 +2,7 @@ package com.humbertdany.sarl.tsp.ui.mainui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
+import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.core.ui.MGridPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.SolverObserver;
@@ -33,7 +34,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	private static final String HTML_VIEW_FILENAME = "/mainUi/webView.html";
 
 	@FXML
-	private Pane paramPane;
+	private MAnchorPane paramPane;
 	@FXML
 	private WebView webViewer;
 	@FXML

@@ -1,5 +1,6 @@
 package com.humbertdany.sarl.tsp.core.ui;
 
+import com.humbertdany.sarl.tsp.ui.icon.AppIconLib;
 import com.humbertdany.sarl.tsp.ui.tsppopup.TspPopupController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -85,6 +86,7 @@ abstract public class JfxController {
 		stage.setTitle(modalTitle);
 		stage.setMinHeight(minHeight);
 		stage.setMinWidth(minWidth);
+		stage.getIcons().add(AppIconLib.get250Image());
 		stage.initModality(Modality.APPLICATION_MODAL);
 		return controller;
 	}

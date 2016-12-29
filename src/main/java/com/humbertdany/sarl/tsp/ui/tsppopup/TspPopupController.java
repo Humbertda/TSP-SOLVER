@@ -88,7 +88,8 @@ public class TspPopupController extends JfxController {
 				new Text("You can download some famous TSP problem on the Heidelberg University website "),
 				new ClassicHyperlink(HyperlinkRegister.HEIDELBERG_UNIVERSITY_TSPLIB_URL, "clicking here"),
 				new Text(", Or you can learn about the available format (and more)"),
-				new ClassicHyperlink(HyperlinkRegister.GITHUB_PROJECT_URL, "on the GitHub project")
+				new ClassicHyperlink(HyperlinkRegister.GITHUB_PROJECT_URL, "on the GitHub project"),
+				new Text("(You can only import unzipped file for now)")
 		);
 		bindButton(openFileChooserBtn, evt -> {
 			FileChooser fileChooser = new FileChooser();
