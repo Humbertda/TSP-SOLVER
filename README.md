@@ -11,7 +11,10 @@ To choose your problem, go to "File > Open TSP Problem" and follow the instructi
 
 #### What format can the application parse?
 
-- EDGE_WEIGHT_TYPE: EUC_2D
+- EDGE_WEIGHT_TYPE:
+    - GEO (COORD_DISPLAY);
+    - EUC_2D
+    - ATTR
 
 ### Finding some TSP problems
 
