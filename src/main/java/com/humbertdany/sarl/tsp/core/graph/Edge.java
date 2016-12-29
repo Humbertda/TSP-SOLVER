@@ -80,6 +80,7 @@ public class Edge<T> {
 	 *
 	 * @return cost of the edge
 	 */
+	@JsonInclude
 	public int getCost() {
 		return cost;
 	}

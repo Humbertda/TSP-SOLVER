@@ -1,5 +1,6 @@
 package com.humbertdany.sarl.tsp.filereader.parser;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.humbertdany.sarl.tsp.filereader.DistanceHelper;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
@@ -7,6 +8,8 @@ import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 import com.humbertdany.utils.factory.ArrayFactory;
 import com.humbertdany.utils.sort.ISortingAlgorithm;
 import com.humbertdany.utils.sort.SortingFusion;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +17,8 @@ import java.util.List;
 import java.util.Objects;
 
 abstract public class ATspProblemReader implements ITspFileReader {
+
+	private Logger logger;
 
 	final private ISortingAlgorithm<Elem> sortingAlgo = new SortingFusion<>(new ArrayFactory<Elem>() {
 		@Override
@@ -80,6 +85,27 @@ abstract public class ATspProblemReader implements ITspFileReader {
 		public int compareTo(final Elem o) {
 			return cost.compareTo(o.cost);
 		}
+	}
+
+	@JsonIgnore
+	protected final void log(final Object o){
+		if(logger == null){
+			initLogger();
+		}
+		logger.info("\n" + o.toString());
+	}
+
+	@JsonIgnore
+	protected final void logError(final Object o){
+		if(logger == null){
+			initLogger();
+		}
+		logger.error("\n" + o.toString());
+	}
+
+	@JsonIgnore
+	private void initLogger(){
+		logger = LogManager.getLogger(this.getClass());
 	}
 
 }

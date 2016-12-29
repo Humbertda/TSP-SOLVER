@@ -10,15 +10,4 @@ public interface ITspFileReader {
 
 	TspGraph readFromString(final String f) throws ParsingException;
 
-	class Record {
-		double x;
-		double y;
-
-		Record(double x, double y) {
-			super();
-			this.x = x;
-			this.y = y;
-		}
-	}
-
 }

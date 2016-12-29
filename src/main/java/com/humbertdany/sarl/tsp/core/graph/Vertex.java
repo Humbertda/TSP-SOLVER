@@ -371,27 +371,28 @@ public class Vertex<T> {
 		tmp.append(data);
 		tmp.append("), in:[");
 		for (int i = 0; i < incomingEdges.size(); i++) {
-			Edge<T> e = incomingEdges.get(i);
 			if (i > 0)
 				tmp.append(',');
-			tmp.append('{');
-			tmp.append(e.getFrom().name);
-			tmp.append(',');
-			tmp.append(e.getCost());
-			tmp.append('}');
+			tmp.append(getEdgeDesc(incomingEdges.get(i)));
 		}
 		tmp.append("], out:[");
 		for (int i = 0; i < outgoingEdges.size(); i++) {
-			Edge<T> e = outgoingEdges.get(i);
 			if (i > 0)
 				tmp.append(',');
-			tmp.append('{');
-			tmp.append(e.getTo().name);
-			tmp.append(',');
-			tmp.append(e.getCost());
-			tmp.append('}');
+			tmp.append(getEdgeDesc(outgoingEdges.get(i)));
 		}
 		tmp.append(']');
+		return tmp.toString();
+	}
+
+	@JsonIgnore
+	private String getEdgeDesc(Edge<T> e){
+		final StringBuilder tmp = new StringBuilder();
+		tmp.append("{name=");
+		tmp.append(e.getTo().name);
+		tmp.append(", cost=");
+		tmp.append(e.getCost());
+		tmp.append('}');
 		return tmp.toString();
 	}
 }
