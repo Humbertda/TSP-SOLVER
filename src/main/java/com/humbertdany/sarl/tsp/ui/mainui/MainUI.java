@@ -31,10 +31,11 @@ public class MainUI extends Application {
 		    // Set the main frame info and display it
 	        primaryStage.setTitle("TSP Ant Colony Solver");
 	        primaryStage.setScene(new Scene(root, 500, 500));
-		    primaryStage.setMaximized(true);
 		    primaryStage.getIcons().add(AppIconLib.get250Image());
 		    primaryStage.setMinHeight(500);
 		    primaryStage.setMinWidth(650);
+		    primaryStage.setWidth(900);
+		    primaryStage.setHeight(650);
 	        primaryStage.show();
 
 		    this.onClosingEvent(controller);
