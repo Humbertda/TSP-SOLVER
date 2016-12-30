@@ -1,0 +1,104 @@
+package com.humbertdany.sarl.tsp.solver.aco.sarl
+
+import com.humbertdany.sarl.tsp.tspgraph.TspGraph
+import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener
+import io.sarl.core.Initialize
+import com.humbertdany.sarl.tsp.solver.ASarlSolver
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Lifecycle
+import io.sarl.core.Schedules
+import io.sarl.core.Logging
+import javafx.application.Platform
+import java.util.ArrayList
+
+/**
+ * Start the solving 
+ * Used as first sent and should loop
+ */
+event NewTick {
+}
+
+event StopSolvingEvent {
+}
+
+event NewGraphState {
+	var graph : TspGraph
+}
+
+event StartSolvingEvent {
+	var graph : TspGraph
+}
+
+abstract agent ALauncher {
+
+	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
+
+	/** 
+	 * Store all the variables
+	 * that will require to be triggered
+	 * on the new states (the solver, etc.)
+	 * ! These should only be Java object
+	 * if a SARL require it, use the Events
+	 * to benefit of parallelism 
+	 */
+	var listeners = <EnvironmentListener>newArrayList
+	
+	/** 
+	 * The TspGraph currently solving
+	 */
+	var graph : TspGraph;
+	
+	on Initialize {
+		var solver = occurrence.parameters.get(0) as ASarlSolver
+		listeners.add(solver)
+		solver.setEventSpace(defaultSpace);
+		solver.sarlReady();
+	}
+
+	on StopSolvingEvent {
+		in(100)[
+			killMe
+		]
+	}
+
+	on NewGraphState {
+		info("A new graph state has been sent by the Aco Controller");
+		graph = occurrence.graph;
+	}
+
+	on StartSolvingEvent {
+		this.graph = occurrence.graph
+		emit(new NewTick)
+	}
+
+	def fireNewState {
+		if (graph != null) {
+			Platform.runLater(new JfxInfoRunnable(listeners, graph));
+		} else {
+			info("The graph is currently 'null'")
+		}
+	}
+
+}
+/** 
+ * Runnable used to inform the main Application
+ * (running on JavaFX Thread) 
+ * of all the changes we have to 
+ */
+class JfxInfoRunnable implements Runnable {
+
+	var listeners : ArrayList<EnvironmentListener>
+	var graph : TspGraph
+
+	new(listeners : ArrayList<EnvironmentListener>, graph : TspGraph) {
+		this.listeners = listeners;
+		this.graph = graph;
+	}
+
+	override run {
+		for (listener : this.listeners) {
+			listener.newGraphState(graph)
+		}
+	}
+
+}
