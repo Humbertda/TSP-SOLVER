@@ -4,7 +4,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TspCommonLibrary {
-
+	
+	public static final String EASY_CHALLENGE = "NAME: easychall5\n" +
+			"TYPE: TSP\n" +
+			"COMMENT: 5 Location in France\n" +
+			"DIMENSION: 5\n" +
+			"EDGE_WEIGHT_TYPE: EUC_2D\n" +
+			"NODE_COORD_SECTION\n" +
+			"1 46.738914 5.903777\n" +
+			"2 47.241318 6.007459\n" +
+			"3 47.638263 6.855987\n" +
+			"4 46.202410 6.137136\n" +
+			"5 47.318478 5.032734\n" +
+			"EOF";
+	
+	
 	public static final String BERLIN_52 = "NAME: berlin52\n" +
 			"TYPE: TSP\n" +
 			"COMMENT: 52 locations in Berlin (Groetschel)\n" +
@@ -655,6 +669,7 @@ public class TspCommonLibrary {
 
 	public static List<TspProblem> getAllCommonProblem(){
 		return Arrays.asList(
+				new TspProblem("EASY_CHALLENGE", EASY_CHALLENGE), 
 				new TspProblem("BERLIN_52", BERLIN_52),
 				new TspProblem("ATT_48", ATT_48),
 				new TspProblem("FL_417", FL_417),

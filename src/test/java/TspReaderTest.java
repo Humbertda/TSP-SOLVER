@@ -12,7 +12,7 @@ public class TspReaderTest extends ATest {
 			for(TspProblem p : TspCommonLibrary.getAllCommonProblem()){
 				final TspGraph tspGraph = fr.readFromString(p.getDesc());
 				final StringBuilder sb = new StringBuilder();
-				sb.append(p.getName()).append(" converted into : \n").append(tspGraph).append("\n");
+				sb.append(p.getName()).append(" converted into : \n").append(tspGraph).append("\nAs Json:\n").append(tspGraph.getD3String()).append("\n");
 				log(sb.toString());
 			}
 			newLine();
