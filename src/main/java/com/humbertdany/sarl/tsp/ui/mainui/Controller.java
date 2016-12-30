@@ -1,6 +1,7 @@
 package com.humbertdany.sarl.tsp.ui.mainui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.humbertdany.sarl.tsp.core.graph.Vertex;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.core.ui.MGridPane;
@@ -9,6 +10,7 @@ import com.humbertdany.sarl.tsp.solver.SolverObserver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
+import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 import com.humbertdany.sarl.tsp.ui.aboutpopup.AboutController;
 import com.humbertdany.sarl.tsp.ui.tsppopup.PopupObserver;
 import com.humbertdany.sarl.tsp.ui.tsppopup.TspPopupController;
@@ -141,7 +143,8 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	 */
 	public class JsApplication extends AJsApplication {
 
-		private ArrayList<String> callbacks = new ArrayList<>();
+		private ArrayList<String> callbacksNewMap = new ArrayList<>();
+		private ArrayList<String> callbacksUpdateMap = new ArrayList<>();
 
 		public JsApplication(WebEngine we) {
 			super(we);
@@ -155,6 +158,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		 */
 		public void sendNewTspMap(final String action, final String arg) {
 			try {
+				log(action.toLowerCase() + " performed");
 				switch (action.toLowerCase()){
 					case "create city":
 						CityEntry cityEntry = mapper.readValue(arg, CityEntry.class);
@@ -163,15 +167,14 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 					case "city updated":
 						CityEntry cEntry = mapper.readValue(arg, CityEntry.class);
 						final TspVertex vertexByData = (TspVertex) tspGraph.findVertexByName(cEntry.getName());
-						vertexByData.getData().setX(cEntry.getX());
-						vertexByData.getData().setY(cEntry.getY());
+						vertexByData.getData().setXY(cEntry.getX(), cEntry.getY());
 						break;
 					case "link removed":
 						PathEntry pathEntry = mapper.readValue(arg, PathEntry.class);
-						tspGraph.removeEdge(
-								tspGraph.findVertexByName(pathEntry.getFrom().getName()),
-								tspGraph.findVertexByName(pathEntry.getTo().getName())
-						);
+						final Vertex<VertexInfo> from = tspGraph.findVertexByName(pathEntry.getFrom().getName());
+						final Vertex<VertexInfo> to = tspGraph.findVertexByName(pathEntry.getTo().getName());
+						tspGraph.removeEdge(from, to);
+						tspGraph.removeEdge(to, from);
 						break;
 					case "link city":
 						CityEntry[] entries = mapper.readValue(arg, CityEntry[].class);
@@ -180,6 +183,8 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 									tspGraph.findVertexByName(entries[0].getName()),
 									tspGraph.findVertexByName(entries[1].getName())
 							);
+						} else {
+							logError("The two cities can't be found");
 						}
 						break;
 					default:
@@ -198,7 +203,11 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		 * @param arg String
 		 */
 		public void onMapChange(final String arg){
-			callbacks.add(arg);
+			callbacksUpdateMap.add(arg);
+		}
+
+		public void onNewMap(final String arg){
+			callbacksNewMap.add(arg);
 		}
 
 		// Bellow this line, all the functions are not called in JS
@@ -210,7 +219,19 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		 */
 		void sendNewMap(final D3GraphDisplayable arg){
 			final String toSend = arg.getD3String();
-			for(String s : callbacks){
+			for(String s : callbacksNewMap){
+				try {
+					webEngine.executeScript(s + "('" + toSend +"')");
+				} catch (JSException e){
+					logError(e.getMessage() + "Map sent: " + toSend);
+				}
+
+			}
+		}
+
+		void updateMap(final D3GraphDisplayable arg){
+			final String toSend = arg.getD3String();
+			for(String s : callbacksUpdateMap){
 				try {
 					webEngine.executeScript(s + "('" + toSend +"')");
 				} catch (JSException e){
@@ -317,7 +338,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 	@Override
 	public void onNewGraphState(TspGraph g) {
-		jsApp.sendNewMap(g);
+		jsApp.updateMap(g);
 	}
 
 	@Override

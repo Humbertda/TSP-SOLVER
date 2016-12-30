@@ -64,6 +64,7 @@ abstract public class ATspProblemReader implements ITspFileReader {
 				graph.addEdge(v, vertices[e.idInArray]);
 			}
 		}
+		graph.setRootVertex(vertices[0]);
 
 		return graph;
 	}

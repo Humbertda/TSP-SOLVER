@@ -27,17 +27,20 @@
 		;
 	
 	var view = svg.append("g")
-		.attr("class", "view")
+		.attr("class", "view");
+	
+	var elementsContainerG = view.append("g")
 		.attr("width", "100%")
 		.attr("height", "100%");
 	
-	var rect = view.append("rect");
+	var rect = elementsContainerG.append("rect");
 	
 	rect.on('click', clickMap)
 		.on('contextmenu', clickMap)
-		.attr("class", "background")
-		.attr("width", width)
-		.attr("height", height);
+		.attr("class", "background");
+	
+	rect.attr("width", "1000px")
+		.attr("height","1000px");
 	
 	var createCity = function(v){
 		return _.extend({
@@ -83,9 +86,9 @@
 	 * Draw all the cities from the cities[] var
 	 */
 	function drawCities() {
-		view.selectAll('circle').remove();
+		elementsContainerG.selectAll('circle').remove();
 		_.each(cities, function(city){
-			var circle = view.append('circle')
+			var circle = elementsContainerG.append('circle')
 				.attr('cx', function () { return city.x;})
 				.attr('cy', function () { return city.y; })
 				.attr('r', optimalCitySize)
@@ -135,7 +138,7 @@
 	 */
 	function drawPaths() {
 		var thickness = optimalCitySize * .4; //Some number
-		view.selectAll('polygon.connection').remove();
+		elementsContainerG.selectAll('polygon.connection').remove();
 		_.each(edges, function(edge){
 			var from = edge['from'];
 			var to = edge['to'];
@@ -147,7 +150,7 @@
 				strPoints += p.x+","+p.y+' ';
 			});
 			
-			view.append("polygon")
+			elementsContainerG.append("polygon")
 				.attr("fill", "blue")
 				.attr("points", strPoints)
 				.attr("class", "connection")
@@ -206,51 +209,6 @@
 		})
 	};
 	
-	function drawState(newState){
-		var json = JSON.parse(newState);
-		var rawCities = json['cities'];
-		var rawEdges = json['edges'];
-		cities = [];
-		var maxX = -100000000;
-		var maxY = -100000000;
-		var minX =  100000000;
-		var minY =  100000000;
-		_.each(rawCities, function(rawCity, i){
-			var nCity = createCityFromJava(rawCity, i);
-			cities.push(nCity);
-			if(nCity.x > maxX){
-				maxX = nCity.x;
-			}
-			if(nCity.y > maxY){
-				maxY = nCity.y;
-			}
-			if(nCity.x < minX){
-				minX = nCity.x;
-			}
-			if(nCity.y < minY){
-				minY = nCity.y;
-			}
-		});
-		edges = [];
-		_.each(rawEdges, function(rawEdge){
-			edges.push(createPath({
-				from: createCityFromJava(rawEdge['from']),
-				to: createCityFromJava(rawEdge['to'])
-			}));
-		});
-		width = maxX;
-		height = maxY;
-		optimalCitySize = (width+height)/2*.01;
-		svg.attr("viewBox", "0 0 " + width + " " + height);
-		rect.attr("width", "100%")
-			.attr("height", "100%")
-		view.attr("width", (maxX+(minX*2)))
-			.attr("height", (maxY+(minY*2)));
-		zoom.translateExtent([[-100, -100], [width, height]]);
-		drawPaths();
-		drawCities();
-	}
-	
 	// context menu
 	
 	var cmLinkCity = document.getElementById("cm-linkCity");
@@ -307,7 +265,7 @@
 					});
 				};
 				
-				var line = view.insert("line", ":first-child")
+				var line = elementsContainerG.insert("line", ":first-child")
 					.attr("stroke", "red")
 					.attr("stroke-width", (optimalCitySize * .1)+"px")
 					.attr("x1", selectedCity.city.x)
@@ -317,7 +275,7 @@
 					.attr("class", "temporary-connection")
 				;
 				
-				view.on("mousemove", function(){
+				elementsContainerG.on("mousemove", function(){
 					line.attr("x2", d3.mouse(this)[0])
 						.attr("y2", d3.mouse(this)[1]);
 				});
@@ -349,10 +307,8 @@
 	// Zoom and pan
 	
 	var zoom = d3.zoom()
-		.scaleExtent([0.5, 10])
-		.translateExtent([[-100, -100], [width*2, height + 100]])
-		.on("zoom", zoomed)
-	;
+		.scaleExtent([.6, 4])
+		.on("zoom", zoomed);
 	
 	svg.call(zoom);
 	
@@ -360,14 +316,52 @@
 		view.attr("transform", d3.event.transform);
 	}
 	
-	function resetted() {
-		view.transition()
-			.duration(750)
-			.call(zoom.transform, d3.zoomIdentity);
+	
+	function init(newState){
+		var json = JSON.parse(newState);
+		var rawCities = json['cities'];
+		var rawEdges = json['edges'];
+		cities = [];
+		var maxX = -100000000;
+		var maxY = -100000000;
+		var minX =  100000000;
+		var minY =  100000000;
+		_.each(rawCities, function(rawCity, i){
+			var nCity = createCityFromJava(rawCity, i);
+			cities.push(nCity);
+			if(nCity.x > maxX){
+				maxX = nCity.x;
+			}
+			if(nCity.y > maxY){
+				maxY = nCity.y;
+			}
+			if(nCity.x < minX){
+				minX = nCity.x;
+			}
+			if(nCity.y < minY){
+				minY = nCity.y;
+			}
+		});
+		edges = [];
+		_.each(rawEdges, function(rawEdge){
+			edges.push(createPath({
+				from: createCityFromJava(rawEdge['from']),
+				to: createCityFromJava(rawEdge['to'])
+			}));
+		});
+		width = (maxX-minX);
+		height = (maxY-minY);
+		optimalCitySize = (width+height)/2*.01;
+		svg.attr("viewBox", 0 + " " + 0 + " " + width + " " + height);
+		elementsContainerG.attr("transform", "translate(" + -minX + "," + -minY + ")");
+		//TODO find a solution to prevent pan out : zoom.translateExtent([[0, 0], [0, 0]]);
+		drawPaths();
+		drawCities();
 	}
 	
+	
 	return {
-		drawState: drawState,
+		init: init,
 		onModification: onModification
 	}
 })(d3, _);

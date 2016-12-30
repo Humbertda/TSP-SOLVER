@@ -1,9 +1,9 @@
 package com.humbertdany.sarl.tsp.solver;
 
 import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.NewGraphState;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.StartSolvingEvent;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.StopSolvingEvent;
+import com.humbertdany.sarl.tsp.solver.generic.NewGraphState;
+import com.humbertdany.sarl.tsp.solver.generic.StartSolvingEvent;
+import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import io.sarl.lang.core.EventSpace;
 

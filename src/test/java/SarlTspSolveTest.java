@@ -10,8 +10,6 @@ public class SarlTspSolveTest extends ATest {
 		AntColonyTspSolver solver = new AntColonyTspSolver();
 		TspGraph graph = TsplibListItem.fromTspProblem(new TspProblem("Berlin Test", TspCommonLibrary.BERLIN_52)).generateGraph();
 		solver.startSolving(graph);
-
-		solver.getParameters().setChecked(false);
 	}
 
 }

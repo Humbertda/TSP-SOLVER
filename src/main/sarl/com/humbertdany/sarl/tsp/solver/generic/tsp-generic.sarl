@@ -1,4 +1,4 @@
-package com.humbertdany.sarl.tsp.solver.aco.sarl
+package com.humbertdany.sarl.tsp.solver.generic
 
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph
 import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener
@@ -31,7 +31,7 @@ event StartSolvingEvent {
 
 abstract agent ALauncher {
 
-	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
+	uses DefaultContextInteractions, Lifecycle, Schedules
 
 	/** 
 	 * Store all the variables
@@ -62,20 +62,18 @@ abstract agent ALauncher {
 	}
 
 	on NewGraphState {
-		info("A new graph state has been sent by the Aco Controller");
 		graph = occurrence.graph;
 	}
 
 	on StartSolvingEvent {
 		this.graph = occurrence.graph
+		emit(new NewGraphState => [graph = this.graph])
 		emit(new NewTick)
 	}
 
 	def fireNewState {
 		if (graph != null) {
 			Platform.runLater(new JfxInfoRunnable(listeners, graph));
-		} else {
-			info("The graph is currently 'null'")
 		}
 	}
 

@@ -35,7 +35,6 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 	@Override
 	public void parametersChanged(final AcoParameters p) {
 		this.parameters = p;
-		log(p);
 		if(getDefaultSpace() != null){
 			final NewTspProblemParameters newParams = new NewTspProblemParameters();
 			newParams.params = p;

@@ -59,9 +59,6 @@ div {
     height: 100%;
     width:100%;
 }
-#states .active {
-    fill: orange;
-}
 .svg-container {
     margin: auto;
     display: inline-block;

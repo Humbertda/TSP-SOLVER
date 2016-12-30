@@ -4,10 +4,13 @@ import com.humbertdany.sarl.tsp.ui.icon.AppIconLib;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -34,6 +37,12 @@ abstract public class JfxController {
 	final protected void bindCheckbox(final CheckBox checkbox, final Bindable<Boolean> method){
 		checkbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			method.setValue(newValue);
+		});
+	}
+	
+	final protected void bindStringChoicebox(final ChoiceBox<String> cb, final Bindable<String> method){
+		cb.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+			method.setValue(cb.getItems().get(newValue.intValue()));
 		});
 	}
 
@@ -88,6 +97,13 @@ abstract public class JfxController {
 		stage.getIcons().add(AppIconLib.get250Image());
 		stage.initModality(Modality.APPLICATION_MODAL);
 		return controller;
+	}
+	
+	final protected MGridPane wrapControl(final Node n, final String label){
+		final MGridPane wrapper = new MGridPane();
+		wrapper.add(new Label(label), 0, 0);
+		wrapper.add(n, 0, 1);
+		return wrapper;
 	}
 
 	public Stage getStage() {

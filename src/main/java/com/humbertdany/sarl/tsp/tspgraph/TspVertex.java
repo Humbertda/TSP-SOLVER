@@ -10,10 +10,6 @@ public class TspVertex extends Vertex<VertexInfo> {
 		super(name, info);
 	}
 
-	public TspVertex(final String name){
-		this(name, VertexInfo.initEmpty());
-	}
-
 	@JsonInclude
 	public VertexInfo getVertexInfo(){
 		return this.getData();
