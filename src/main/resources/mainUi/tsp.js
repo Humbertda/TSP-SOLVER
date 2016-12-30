@@ -22,24 +22,16 @@
 			.classed("svg-container", true)
 			.append("svg")
 			.attr("preserveAspectRatio", "xMinYMin meet")
-			.attr("viewBox", "0 0 " + width + " " + height)
 			.classed("svg-content-responsive", true)
+			.attr("viewBox", "0 0 " + width + " " + height)
 		;
-
-	// Arrows
-	svg.append("svg:defs")
-	  .append("svg:marker")
-	    .attr("id", "directed-line")
-	    .attr("viewBox", "0 -5 10 10")
-	    .attr("refX", 15)
-	    .attr("refY", -1.5)
-	    .attr("markerWidth", 6)
-	    .attr("markerHeight", 6)
-	    .attr("orient", "auto")
-	  .append("svg:path")
-	    .attr("d", "M0,-5L10,0L0,5");
-
-	var rect = svg.append("rect");
+	
+	var view = svg.append("g")
+		.attr("class", "view")
+		.attr("width", "100%")
+		.attr("height", "100%");
+	
+	var rect = view.append("rect");
 	
 	rect.on('click', clickMap)
 		.on('contextmenu', clickMap)
@@ -91,9 +83,9 @@
 	 * Draw all the cities from the cities[] var
 	 */
 	function drawCities() {
-		svg.selectAll('circle').remove();
+		view.selectAll('circle').remove();
 		_.each(cities, function(city){
-			var circle = svg.append('circle')
+			var circle = view.append('circle')
 				.attr('cx', function () { return city.x;})
 				.attr('cy', function () { return city.y; })
 				.attr('r', optimalCitySize)
@@ -143,7 +135,7 @@
 	 */
 	function drawPaths() {
 		var thickness = optimalCitySize * .4; //Some number
-		svg.selectAll('polygon.connection').remove();
+		view.selectAll('polygon.connection').remove();
 		_.each(edges, function(edge){
 			var from = edge['from'];
 			var to = edge['to'];
@@ -155,7 +147,7 @@
 				strPoints += p.x+","+p.y+' ';
 			});
 			
-			svg.append("polygon")
+			view.append("polygon")
 				.attr("fill", "blue")
 				.attr("points", strPoints)
 				.attr("class", "connection")
@@ -221,6 +213,8 @@
 		cities = [];
 		var maxX = -100000000;
 		var maxY = -100000000;
+		var minX =  100000000;
+		var minY =  100000000;
 		_.each(rawCities, function(rawCity, i){
 			var nCity = createCityFromJava(rawCity, i);
 			cities.push(nCity);
@@ -229,6 +223,12 @@
 			}
 			if(nCity.y > maxY){
 				maxY = nCity.y;
+			}
+			if(nCity.x < minX){
+				minX = nCity.x;
+			}
+			if(nCity.y < minY){
+				minY = nCity.y;
 			}
 		});
 		edges = [];
@@ -241,9 +241,12 @@
 		width = maxX;
 		height = maxY;
 		optimalCitySize = (width+height)/2*.01;
-		svg.attr("viewBox", 0 + " " + 0 + " " + maxX + " " + maxY);
-		rect.attr("width", width)
-			.attr("height", height);
+		svg.attr("viewBox", "0 0 " + width + " " + height);
+		rect.attr("width", "100%")
+			.attr("height", "100%")
+		view.attr("width", (maxX+(minX*2)))
+			.attr("height", (maxY+(minY*2)));
+		zoom.translateExtent([[-100, -100], [width, height]]);
 		drawPaths();
 		drawCities();
 	}
@@ -266,11 +269,13 @@
 		});
 	});
 	
-	$(document).bind("mousedown", function (e) {
+	var bodyListener = function(e){
 		if (!$(e.target).parents(".custom-menu").length > 0) {
 			$(".custom-menu").hide(100);
 		}
-	});
+	};
+	
+	$(document).bind("click mousedown", bodyListener);
 	
 	$(".custom-menu li").click(function(){
 		// NOTES: we don't need to update anything here
@@ -302,9 +307,9 @@
 					});
 				};
 				
-				var line = svg.insert("line", ":first-child")
+				var line = view.insert("line", ":first-child")
 					.attr("stroke", "red")
-					.attr("stroke-width", "4px")
+					.attr("stroke-width", (optimalCitySize * .1)+"px")
 					.attr("x1", selectedCity.city.x)
 					.attr("y1", selectedCity.city.y)
 					.attr("x2", selectedCity.city.x)
@@ -312,7 +317,7 @@
 					.attr("class", "temporary-connection")
 				;
 				
-				svg.on("mousemove", function(){
+				view.on("mousemove", function(){
 					line.attr("x2", d3.mouse(this)[0])
 						.attr("y2", d3.mouse(this)[1]);
 				});
@@ -340,6 +345,26 @@
 		
 		$(".custom-menu").hide(100);
 	});
+	
+	// Zoom and pan
+	
+	var zoom = d3.zoom()
+		.scaleExtent([0.5, 10])
+		.translateExtent([[-100, -100], [width*2, height + 100]])
+		.on("zoom", zoomed)
+	;
+	
+	svg.call(zoom);
+	
+	function zoomed() {
+		view.attr("transform", d3.event.transform);
+	}
+	
+	function resetted() {
+		view.transition()
+			.duration(750)
+			.call(zoom.transform, d3.zoomIdentity);
+	}
 	
 	return {
 		drawState: drawState,
