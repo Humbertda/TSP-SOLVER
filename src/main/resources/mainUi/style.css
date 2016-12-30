@@ -5,7 +5,7 @@
 .custom-menu {
     display: none;
     z-index: 1000;
-    position: absolute;
+    position: fixed;
     overflow: hidden;
     border: 1px solid #CCC;
     white-space: nowrap;
@@ -14,6 +14,7 @@
     color: #333;
     border-radius: 5px;
     padding: 0;
+    margin: 0;
 }
 
 /* Each of the items in the list */
@@ -69,11 +70,9 @@ div {
     vertical-align: top;
     text-align: center;
 }
-/**
 .svg-container > svg {
     display: inline-block !important;
 }
-**/
 .svg-container > svg {
     display: block !important;
     width: 100%;
