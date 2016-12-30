@@ -2,6 +2,7 @@ package com.humbertdany.sarl.tsp.solver.aco;
 
 import com.humbertdany.sarl.tsp.core.params.ApplicationParametersObserver;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
+import com.humbertdany.sarl.tsp.core.utils.Runner;
 import com.humbertdany.sarl.tsp.solver.ASarlSolver;
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
 import com.humbertdany.sarl.tsp.solver.aco.sarl.Launcher;
@@ -17,7 +18,8 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 	
 	private AcoParameters parameters;
 
-	public AntColonyTspSolver(){
+	public AntColonyTspSolver(Runner<Runnable> r){
+		super(r);
 		parameters = AcoParameters.buildDefault();
 		parameters.watchParametersChange(this);
 	}

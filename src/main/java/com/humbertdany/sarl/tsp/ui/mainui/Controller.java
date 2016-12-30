@@ -1,6 +1,7 @@
 package com.humbertdany.sarl.tsp.ui.mainui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.humbertdany.sarl.tsp.core.graph.EdgeData;
 import com.humbertdany.sarl.tsp.core.graph.Vertex;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
@@ -8,6 +9,7 @@ import com.humbertdany.sarl.tsp.core.ui.MGridPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.SolverObserver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
+import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
@@ -181,7 +183,8 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 						if(entries[0] != null && entries[1] != null){
 							tspGraph.addEdge(
 									tspGraph.findVertexByName(entries[0].getName()),
-									tspGraph.findVertexByName(entries[1].getName())
+									tspGraph.findVertexByName(entries[1].getName()),
+									new TspEdgeData()
 							);
 						} else {
 							logError("The two cities can't be found");

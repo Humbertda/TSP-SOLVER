@@ -7,8 +7,10 @@ import com.humbertdany.sarl.tsp.ui.tsppopup.TsplibListItem;
 public class SarlTspSolveTest extends ATest {
 
 	public static void main(String[] args){
-		AntColonyTspSolver solver = new AntColonyTspSolver();
-		TspGraph graph = TsplibListItem.fromTspProblem(new TspProblem("Berlin Test", TspCommonLibrary.BERLIN_52)).generateGraph();
+		AntColonyTspSolver solver = new AntColonyTspSolver(runnable -> {
+			runnable.run();
+		});
+		TspGraph graph = TsplibListItem.fromTspProblem(new TspProblem("Sarl Aco Test", TspCommonLibrary.EASY_CHALLENGE)).generateGraph();
 		solver.startSolving(graph);
 	}
 

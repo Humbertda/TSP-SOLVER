@@ -16,11 +16,11 @@ public class AcoParameters extends AApplicationParameters {
 	private Boolean isTia = false;
 	private Boolean isMmas = false;
 	private int msBetweenTick = 1000;
-	private double phEvaporation = 0.90;
+	private double phEvaporation = 0.8;
 	private double phInitialLevel = 1;
 	private double phMinMaxRatio = 0.01;
-	private double alpha = 1;
-	private double beta = 3;
+	private double alpha = 0.1;
+	private double beta =  9;
 	private String antsNumber = "Normal";
 
 	// -- constructors

@@ -127,8 +127,8 @@ public class Vertex<T> implements ChangeObserver {
 	 *          the destination vertex
 	 */
 	@JsonIgnore
-	public void addOutgoingEdge(Vertex<T> to) {
-		Edge<T> out = new Edge<>(this, to);
+	public void addOutgoingEdge(Vertex<T> to, EdgeData d) {
+		Edge<T> out = new Edge<>(this, to, d);
 		outgoingEdges.add(out);
 		this.onChanged();
 	}
@@ -140,8 +140,8 @@ public class Vertex<T> implements ChangeObserver {
 	 *          the starting vertex
 	 */
 	@JsonIgnore
-	public void addIncomingEdge(Vertex<T> from) {
-		Edge<T> out = new Edge<>(this, from);
+	public void addIncomingEdge(Vertex<T> from, EdgeData d) {
+		Edge<T> out = new Edge<>(this, from, d);
 		incomingEdges.add(out);
 		this.onChanged();
 	}
@@ -258,7 +258,7 @@ public class Vertex<T> implements ChangeObserver {
 		for (Edge<T> e : outgoingEdges) {
 			if (e.getTo() == dest)
 				return e;
-		}
+		} 
 		return null;
 	}
 

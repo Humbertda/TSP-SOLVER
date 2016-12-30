@@ -22,6 +22,9 @@ public class Edge<T> {
 	@JsonIgnore
 	private boolean mark;
 
+	@JsonIgnore
+	private EdgeData data;
+
 	/**
 	 * Create an edge between from and to with the given cost.
 	 *
@@ -31,9 +34,10 @@ public class Edge<T> {
 	 *          the ending vertex
 	 */
 	@JsonIgnore
-	public Edge(Vertex<T> from, Vertex<T> to) {
+	public Edge(Vertex<T> from, Vertex<T> to, EdgeData data) {
 		this.from = from;
 		this.to = to;
+		this.data = data;
 		mark = false;
 	}
 
@@ -93,6 +97,14 @@ public class Edge<T> {
 	@JsonIgnore
 	public boolean isMarked() {
 		return mark;
+	}
+
+	/**
+	 * Get the Edge data
+	 * @return the data
+	 */
+	public EdgeData getData() {
+		return data;
 	}
 
 	/**

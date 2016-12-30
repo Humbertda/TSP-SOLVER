@@ -48,8 +48,13 @@ abstract agent ALauncher {
 	 */
 	var graph : TspGraph;
 	
+	/**
+	 * Store a ASolver reference to call useful methods
+	 */
+	var solver : ASarlSolver;
+	
 	on Initialize {
-		var solver = occurrence.parameters.get(0) as ASarlSolver
+		solver = occurrence.parameters.get(0) as ASarlSolver
 		listeners.add(solver)
 		solver.setEventSpace(defaultSpace);
 		solver.sarlReady();
@@ -65,15 +70,14 @@ abstract agent ALauncher {
 		graph = occurrence.graph;
 	}
 
-	on StartSolvingEvent {
+	on StartSolvingEvent { 
 		this.graph = occurrence.graph
 		emit(new NewGraphState => [graph = this.graph])
-		emit(new NewTick)
 	}
 
 	def fireNewState {
 		if (graph != null) {
-			Platform.runLater(new JfxInfoRunnable(listeners, graph));
+			solver.runLater(new JfxInfoRunnable(listeners, graph)); 
 		}
 	}
 

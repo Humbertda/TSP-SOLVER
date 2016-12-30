@@ -2,6 +2,7 @@ package com.humbertdany.sarl.tsp.solver;
 
 import com.humbertdany.sarl.tsp.solver.aco.AntColonyTspSolver;
 import com.humbertdany.sarl.tsp.solver.tester.AntColonySolverTester;
+import javafx.application.Platform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ final public class TspSolverLibrary {
 	/*** SOLVERS ****/
 
 	public final AntColonySolverTester solverTest = new AntColonySolverTester();
-	public final AntColonyTspSolver solverAcoSarl = new AntColonyTspSolver();
+	public final AntColonyTspSolver solverAcoSarl = new AntColonyTspSolver(Platform::runLater);
 
 	/*** /SOLVERS ****/
 

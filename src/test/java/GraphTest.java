@@ -1,7 +1,4 @@
-import com.humbertdany.sarl.tsp.core.graph.Edge;
-import com.humbertdany.sarl.tsp.core.graph.Graph;
-import com.humbertdany.sarl.tsp.core.graph.Vertex;
-import com.humbertdany.sarl.tsp.core.graph.Visitor;
+import com.humbertdany.sarl.tsp.core.graph.*;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
@@ -28,12 +25,12 @@ public class GraphTest extends ATest {
 
 		g.addAllVertex(points);
 
-		g.insertBiEdge(belfort, besancon);
-		g.insertBiEdge(besancon, champagnole);
-		g.insertBiEdge(champagnole, geneve);
-		g.insertBiEdge(belfort, geneve);
-		g.insertBiEdge(dijon, belfort);
-		g.insertBiEdge(dijon, champagnole);
+		g.addEdge(belfort, besancon, new EdgeData());
+		g.addEdge(besancon, champagnole, new EdgeData());
+		g.addEdge(champagnole, geneve, new EdgeData());
+		g.addEdge(belfort, geneve, new EdgeData());
+		g.addEdge(dijon, belfort, new EdgeData());
+		g.addEdge(dijon, champagnole, new EdgeData());
 
 		g.setRootVertex(belfort);
 

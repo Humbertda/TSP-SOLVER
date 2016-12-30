@@ -19,6 +19,8 @@ import com.humbertdany.sarl.tsp.tspgraph.TspVertex
 import io.sarl.util.Scopes
 import java.util.List
 import java.util.ArrayList
+import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData
+import com.humbertdany.sarl.tsp.solver.generic.StartSolvingEvent
 
 // ACO SOLVING //
 
@@ -60,41 +62,53 @@ behavior FourmiliereBehavior {
 	
 	var antsCount : int = 0;
 	var desiredAntsCount : int = 0;
+	var pheromoneEvaporation : double = 0.0;
+	var msBetweenTick : int = 1;
 	
 	on NewTspProblemParameters {
 		params = occurrence.params;
 		defineFourmiliereParams
 	}
 
-	on NewGraphState {
+	on StartSolvingEvent {
+		wake(new NewTick);
+	}
+
+	on NewGraphState { 
 		graph = occurrence.graph;
 		defineFourmiliereParams
 	}
 	
 	on SendNewCurrentVertex {
-		var to : TspVertex = occurrence.vertex;
+		var currentPosition : TspVertex = occurrence.vertex;
 		// TODO
 	}
 	
 	on NewTick {
-		
-		// Control the fourmi count
-		if (antsCount != desiredAntsCount) {
+		if (graph != null && params != null) {
+			// Control the fourmi count
+			if (antsCount != desiredAntsCount) {
 			// Not enough fourmi, spawning some to get the count
-			if (antsCount < desiredAntsCount) {
-				for (var i = 0; i < desiredAntsCount - antsCount; i++) {
-					spawn(Fourmi, graph.rootVertex) 
-					antsCount++;
+				if (antsCount < desiredAntsCount) {
+					for (var i = 0; i < desiredAntsCount - antsCount; i++) {
+						spawn(Fourmi, graph.rootVertex)
+						antsCount++;
+					}
+				} else {
+					emit(new FourmiAskDieEvent)
+					antsCount = 0
 				}
-			} else {
-				emit(new FourmiAskDieEvent)
-				antsCount = 0
 			}
+
+			for (e : graph.edges) {
+				var d = e.data as TspEdgeData
+				if (d.pheromoneLevel != null) {
+					info(d.pheromoneLevel)
+				}
 		}
-		
-		
+		}
 		// Infinite Loop on New Tick event
-		in(params.msBetweenTick) [
+		in(msBetweenTick) [
 			emit(new NewTick)
 		]
 	}
@@ -104,6 +118,17 @@ behavior FourmiliereBehavior {
 	 */
 	def defineFourmiliereParams {
 		if (graph != null && params != null) {
+			
+			// Init pheromone for all unitialized edge
+			for (e : graph.edges) {
+				var tspEdgeData = e.data as TspEdgeData;
+				if (tspEdgeData.pheromoneLevel == null) {
+					tspEdgeData.pheromoneLevel = params.phInitialLevel
+					tspEdgeData.pheromonePersistence = params.phEvaporation
+				}
+			}
+			
+			// Check Number of ants
 			var mapSize = graph.verticies.size;
 			var s = params.antsNumber.toLowerCase;
 			if (s.equals("few")) {
@@ -113,6 +138,21 @@ behavior FourmiliereBehavior {
 			} else {
 				desiredAntsCount = mapSize
 			}
+			
+			// Pheromone Evaporation Check
+			if (pheromoneEvaporation != params.phEvaporation) {
+				pheromoneEvaporation = params.phEvaporation
+				for (e : graph.edges) {
+					var tspEdgeData = e.data as TspEdgeData;
+					tspEdgeData.pheromonePersistence = pheromoneEvaporation;  
+				}
+			}
+			
+			// Update MS Ticks
+			if (msBetweenTick != params.msBetweenTick) {
+				msBetweenTick = params.msBetweenTick
+			}
+			
 		}
 	}
 	
@@ -132,14 +172,18 @@ agent Fourmi {
 		visitedVertexName.add(currentVertex.name)
 	}
 
+	/**
+	 * TODO implement Ants
+	 */
 	on NewTick {
 		var dest : TspVertex;
-		for (var i = 0; i < currentVertex.outgoingEdgeCount; i++) {
+		for (var i = 0; i < currentVertex.outgoingEdgeCount; i++) { 
 			var edge = currentVertex.outgoingEdges.get(i)
 			var to = edge.to as TspVertex;
+			var data = edge.data as TspEdgeData;
 			if (!to.name.equals(currentVertex.name)) {
-				// info(e.cost)
-				// TODO choose the vertex to go
+				var value : double = (data.pheromoneLevel - 0.1); //TODO
+				data.adjustWeight(value); 
 				if (!visitedVertexName.contains(to.name)) {
 					dest = to;
 				}
@@ -149,9 +193,6 @@ agent Fourmi {
 			currentVertex = dest;
 			visitedVertexName.add(currentVertex.name)
 			emit(new SendNewCurrentVertex => [vertex = currentVertex])
-			info(visitedVertexName);
-		} else {
-			info("Visited every vertex " + visitedVertexName)
 		}
 	}
 
@@ -167,7 +208,7 @@ agent Fourmi {
 		in(100) [
 			killMe
 		]
-	}
+	}	
 	
 }
 
