@@ -22,22 +22,14 @@
 			.classed("svg-container", true)
 			.append("svg")
 			.attr("preserveAspectRatio", "xMinYMin meet")
-			.attr("viewBox", "0 0 " + width + " " + height)
 			.classed("svg-content-responsive", true)
+			.attr("viewBox", "0 0 " + width + " " + height)
 		;
-
-	// Arrows
-	svg.append("svg:defs")
-	  .append("svg:marker")
-	    .attr("id", "directed-line")
-	    .attr("viewBox", "0 -5 10 10")
-	    .attr("refX", 15)
-	    .attr("refY", -1.5)
-	    .attr("markerWidth", 6)
-	    .attr("markerHeight", 6)
-	    .attr("orient", "auto")
-	  .append("svg:path")
-	    .attr("d", "M0,-5L10,0L0,5");
+	
+	var view = svg.append("rect")
+		.attr("class", "view")
+		.attr("width", "100%")
+		.attr("height", "100%");
 
 	var rect = svg.append("rect");
 	
@@ -340,6 +332,26 @@
 		
 		$(".custom-menu").hide(100);
 	});
+	
+	// Zoom and pan
+	
+	var zoom = d3.zoom()
+		.scaleExtent([1, 40])
+		.translateExtent([[-100, -100], [width + 90, height + 100]])
+		.on("zoom", zoomed);
+	
+	view.call(zoom);
+	
+	function zoomed() {
+		console.log("hihihi");
+		view.attr("transform", d3.event.transform);
+	}
+	
+	function resetted() {
+		view.transition()
+			.duration(750)
+			.call(zoom.transform, d3.zoomIdentity);
+	}
 	
 	return {
 		drawState: drawState,
