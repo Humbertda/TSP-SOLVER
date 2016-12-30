@@ -8,9 +8,16 @@ import java.util.List;
 
 final public class TspSolverLibrary {
 
+	/*** SOLVERS ****/
+
+	public final AntColonySolverTester solverTest = new AntColonySolverTester();
+	public final AntColonyTspSolver solverAcoSarl = new AntColonyTspSolver();
+
+	/*** /SOLVERS ****/
+
 	private TspSolverLibrary(){
-		register(new AntColonySolverTester());
-		register(new AntColonyTspSolver());
+		register(solverTest);
+		register(solverAcoSarl);
 	}
 
 	public static TspSolverLibrary init(){

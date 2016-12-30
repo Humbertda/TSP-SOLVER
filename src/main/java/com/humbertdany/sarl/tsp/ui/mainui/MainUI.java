@@ -1,5 +1,8 @@
 package com.humbertdany.sarl.tsp.ui.mainui;
 
+import com.humbertdany.sarl.tsp.filereader.ParsingException;
+import com.humbertdany.sarl.tsp.filereader.TspProblemReader;
+import com.humbertdany.sarl.tsp.tspgraph.lib.TspCommonLibrary;
 import com.humbertdany.sarl.tsp.ui.icon.AppIconLib;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -13,14 +16,15 @@ import java.util.ArrayList;
 
 public class MainUI extends Application {
 
+	public static final String TEST_LAUNCH_ARGS = "lkhbzekij342$5TRGFDSsqdb-";
+
 	private Logger logger;
 	
 	private ArrayList<GuiListener> guiListeners = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-    	
-    	try {
+	    try {
 
 		    // Load the stuff from JavaFX and the controller
 		    final FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainUi/sample.fxml"));
@@ -36,9 +40,30 @@ public class MainUI extends Application {
 		    primaryStage.setMinWidth(650);
 		    primaryStage.setWidth(900);
 		    primaryStage.setHeight(650);
-	        primaryStage.show();
-
 		    this.onClosingEvent(controller);
+
+		    // TEST & DEV MODE ACTIVATION
+		    //  The code here is not so pretty, should be redesigned later
+
+		    for(String arg : getParameters().getRaw()){
+			    if(arg.equals(TEST_LAUNCH_ARGS)){
+			    	log("Entering MainUI Test|Dev mode");
+				    controller.enterSolverMode(controller.getTspSolverLibrary().solverAcoSarl);
+				    controller.openWebviewDebugger();
+				    controller.onWebviewReady(() -> {
+					    try {
+						    final TspProblemReader fr = new TspProblemReader();
+						    controller.newGraphSelected(fr.readFromString(TspCommonLibrary.BERLIN_52));
+					    } catch (ParsingException e) {
+						    logError(e.getMessage());
+					    }
+				    });
+
+			    }
+		    }
+
+		    // Finally we can show the Pane
+	        primaryStage.show();
 
 
 		} catch (Exception e) {

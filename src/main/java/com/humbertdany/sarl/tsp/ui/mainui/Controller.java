@@ -27,8 +27,9 @@ import netscape.javascript.JSObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-public class Controller extends JfxController implements PopupObserver, SolverObserver, GuiListener {
+public class Controller extends JfxController implements PopupObserver, SolverObserver, GuiListener, WebviewReadyObserver {
 
 	private static final String HTML_VIEW_FILENAME = "/mainUi/webView.html";
 
@@ -53,6 +54,10 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
+	private final TspSolverLibrary tspSolverLibrary = TspSolverLibrary.init();
+
+	private final List<WebviewReadyObserver> webviewReadyObservers = new ArrayList<>();
+
 	@FXML
 	private MGridPane selectionGPane;
 	@FXML
@@ -62,20 +67,18 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	public void initialize() {
 		switchMode(false);
 
-		final TspSolverLibrary tspSolverLibrary = TspSolverLibrary.init();
-
 		startStopBtn.setText(BTN_START);
 		webEngine = webViewer.getEngine();
 		jsApp = new JsApplication(webEngine);
 
+		this.onWebviewReady(this);
+
 		webEngine.load(this.getClass().getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
 		webEngine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
 			if(newState == State.SUCCEEDED){
-				JSObject window = (JSObject)webEngine.executeScript("window");
-				window.setMember("javaApp", jsApp);
-				webEngine.executeScript("init()");
-				tspGraph = new TspGraph();
-				jsApp.sendNewMap(tspGraph);
+				if(webviewReadyObservers.size() != 0){
+					webviewReadyObservers.forEach(WebviewReadyObserver::webviewIsReady);
+				}
 			}
 		});
 
@@ -98,12 +101,21 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 	}
 
+	@Override
+	public void webviewIsReady() {
+		JSObject window = (JSObject)webEngine.executeScript("window");
+		window.setMember("javaApp", jsApp);
+		webEngine.executeScript("init()");
+		tspGraph = new TspGraph();
+		jsApp.sendNewMap(tspGraph);
+	}
+
 	/**
 	 * Method called when a Solver is selected by the user
 	 * It will init the scene (make the buttons return appears and init the controler pane)
 	 * @param solver The selected solver
 	 */
-	private void enterSolverMode(final ATspSolver solver){
+	void enterSolverMode(final ATspSolver solver){
 		bindSolver(solver);
 		switchMode(true);
 	}
@@ -115,7 +127,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		selectionGPane.setVisible(!isSolverMode);
 	}
 
-	public void bindSolver(final ATspSolver solver){
+	private void bindSolver(final ATspSolver solver){
 		paramPane.getChildren().clear();
 		this.solver = solver;
 		solver.onSolverDone(this);
@@ -210,6 +222,10 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 	}
 
+	public TspSolverLibrary getTspSolverLibrary() {
+		return tspSolverLibrary;
+	}
+
 	private void initPopupGraphChooser() throws IOException {
 		TspPopupController controller = (TspPopupController) this.openModal("/tspChooserUi/popup.fxml", "Graph Selector");
 		controller.addPopupObserver(this);
@@ -301,15 +317,20 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 	@Override
 	public void onNewGraphState(TspGraph g) {
-		log("A new graph has been received from the Solver");
 		jsApp.sendNewMap(g);
 	}
-
-
 
 	@Override
 	public void closing(MainUI ui) {
 		this.reset();
+	}
+
+	public void openWebviewDebugger(){
+		this.jsApp.openFirebug();
+	}
+
+	public final void onWebviewReady(final WebviewReadyObserver obs){
+		this.webviewReadyObservers.add(obs);
 	}
 
 }
