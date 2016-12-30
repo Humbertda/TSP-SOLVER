@@ -23,7 +23,7 @@ public class AcoGuiController extends JfxController {
 
 		checkbox = new CheckBox("Should use test");
 
-		slider = new Slider(0, 100, 0);
+		slider = new Slider(0, 10000, this.getParams().getMsBetweenTick());
 		slider.setShowTickLabels(true);
 		slider.setShowTickMarks(true);
 		slider.setSnapToTicks(true);

@@ -3,14 +3,12 @@ package com.humbertdany.sarl.tsp.solver.aco;
 import com.humbertdany.sarl.tsp.core.params.ApplicationParametersObserver;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.solver.ASarlSolver;
-import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
-import com.humbertdany.sarl.tsp.solver.aco.sarl.*;
+import com.humbertdany.sarl.tsp.solver.aco.sarl.Launcher;
+import com.humbertdany.sarl.tsp.solver.aco.sarl.NewTspProblemParameters;
 import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
-import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import io.janusproject.Boot;
 import io.janusproject.util.LoggerCreator;
-import io.sarl.lang.core.EventSpace;
 
 import java.util.UUID;
 import java.util.logging.Level;
@@ -21,6 +19,7 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 
 	public AntColonyTspSolver(){
 		parameters = AcoParameters.buildDefault();
+		parameters.watchParametersChange(this);
 	}
 
 	@Override
@@ -36,6 +35,7 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 	@Override
 	public void parametersChanged(final AcoParameters p) {
 		this.parameters = p;
+		log(p);
 		if(getDefaultSpace() != null){
 			final NewTspProblemParameters newParams = new NewTspProblemParameters();
 			newParams.params = p;
@@ -57,7 +57,6 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 
 	@Override
 	public void startSarlSolving() {
-		getParameters().watchParametersChange(this);
 		Boot.setOffline(true);
 		Boot.setVerboseLevel(LoggerCreator.toInt(Level.INFO));
 		try {

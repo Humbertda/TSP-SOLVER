@@ -9,8 +9,8 @@ public class AcoParameters extends AApplicationParameters {
 	 */
 	private static final long serialVersionUID = -3291340246882818235L;
 	
-	private Integer omega;
-	private Boolean isChecked;
+	private Integer omega = 50;
+	private Boolean isChecked = false;
 	private int msBetweenTick = 1000;
 
 	// -- constructors
@@ -19,9 +19,7 @@ public class AcoParameters extends AApplicationParameters {
 	}
 
 	public static AcoParameters buildDefault(){
-		final AcoParameters p = new AcoParameters();
-		p.setOmega(50);
-		return p;
+		return new AcoParameters();
 	}
 
 	// -- Serialize
