@@ -93,7 +93,7 @@
                     javaApp.sendNewTspMap(action, JSON.stringify(arg));
                 },
                 log: function(arg){
-                    javaApp.logMessage(arg);
+                    javaApp.logMessage(JSON.stringify(arg));
                 }
             }
         }
@@ -116,15 +116,12 @@
 
         jsPipe = {
             onMapModification: function(action, e){
-                app.log("onMapModification");
                 app.sendNewTspMap(action, e);
             },
             newMapReceived: function(args){
-                app.log("newMapReceived");
                 tspDrawer.init(args);
             },
             mapUpdated: function(args){
-                app.log("mapUpdated");
                 tspDrawer.newState(args);
             },
             logMessage: function(arg){

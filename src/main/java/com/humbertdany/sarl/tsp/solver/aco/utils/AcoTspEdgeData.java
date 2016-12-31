@@ -3,12 +3,13 @@ package com.humbertdany.sarl.tsp.solver.aco.utils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
 import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 
 public class AcoTspEdgeData extends TspEdgeData {
 
-	public AcoTspEdgeData(){
-		this.pheromoneLevel = 0.0;
+	public AcoTspEdgeData(AcoParameters params){
+		this.pheromoneLevel = params.getPhInitialLevel();
 	}
 
 	@JsonInclude

@@ -68,6 +68,7 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 		if(e.getData() instanceof AcoTspEdgeData){
 			final AcoTspEdgeData data = (AcoTspEdgeData) e.getData();
 			final Double pheromoneLevel = data.getPheromoneLevel(); // TODO real color
+			log(pheromoneLevel);
 			return "yellow";
 		} else {
 			return "red"; // should not happen
@@ -76,7 +77,7 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 
 	@Override
 	public TspEdgeData makeEdgeData() {
-		return new AcoTspEdgeData();
+		return new AcoTspEdgeData(this.parameters);
 	}
 
 	// Solving process
@@ -99,7 +100,7 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 	protected void verifyGraph(TspGraph graph) {
 		for(Edge<VertexInfo> e : graph.getEdges()){
 			if(e.getData() == null){
-				e.setData(new AcoTspEdgeData());
+				e.setData(new AcoTspEdgeData(this.parameters));
 			}
 		}
 	}

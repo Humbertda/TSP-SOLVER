@@ -75,6 +75,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		webEngine = webViewer.getEngine();
 		jsApp = new JsApplication(webEngine);
 
+		webViewer.setCache(false);
 		webEngine.load(this.getClass().getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
 		webEngine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
 			if(newState == State.SUCCEEDED){

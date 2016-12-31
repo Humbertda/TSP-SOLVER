@@ -325,7 +325,9 @@
 		var json = JSON.parse(newState);
 		var rawCities = json['cities'];
 		var rawEdges = json['edges'];
+		pathDraw = [];
 		cities = [];
+		edges = [];
 		var maxX = -100000000;
 		var maxY = -100000000;
 		var minX =  100000000;
@@ -346,7 +348,6 @@
 				minY = nCity.y;
 			}
 		});
-		edges = [];
 		_.each(rawEdges, function(rawEdge){
 			edges.push(createPath({
 				from: createCityFromJava(rawEdge['from']),
@@ -365,12 +366,11 @@
 	}
 	
 	var newStateReceived = function(newState){
-		log("redrawing state");
 		var json = JSON.parse(newState);
-		_.each(json['edges'], function(path, i){
-			var drawEdge = edges[i];
-			if(drawEdge['from']['name'] == path['from']['name'] && drawEdge['to']['name'] == path['to']['name']){
-				pathDraw[i].attr("fill", path["rgbaColor"])
+		_.each(json['edges'], function(newEdge, i){
+			var oldEdge = edges[i];
+			if(oldEdge['from']['name'] == newEdge['from']['name'] && oldEdge['to']['name'] == newEdge['to']['name']){
+				pathDraw[i].attr("fill", newEdge["rgbaColor"]);
 			}
 		});
 	};
