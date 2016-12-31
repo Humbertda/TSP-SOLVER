@@ -145,13 +145,13 @@ public class Graph<T> {
 	 *           if from/to are not verticies in the graph
 	 */
 	@JsonIgnore
-	public boolean addEdge(Vertex<T> from, Vertex<T> to) throws IllegalArgumentException {
+	public boolean addEdge(Vertex<T> from, Vertex<T> to, EdgeData d) throws IllegalArgumentException {
 		if (!verticies.contains(from))
 			throw new IllegalArgumentException("from is not in graph");
 		if (!verticies.contains(to))
 			throw new IllegalArgumentException("to is not in graph");
 
-		Edge<T> e = new Edge<>(from, to);
+		Edge<T> e = new Edge<>(from, to, d);
 		if (from.findEdge(to) != null)
 			return false;
 		else {
@@ -161,23 +161,6 @@ public class Graph<T> {
 			notifyGraphChange();
 			return true;
 		}
-	}
-
-	/**
-	 * Insert a bidirectional Edge<T> in the graph
-	 *
-	 * @param from -
-	 *          the Edge<T> starting vertex
-	 * @param to -
-	 *          the Edge<T> ending vertex
-	 * @return true if edges between both nodes were added, false otherwise
-	 * @throws IllegalArgumentException
-	 *           if from/to are not verticies in the graph
-	 */
-	@JsonIgnore
-	public boolean insertBiEdge(Vertex<T> from, Vertex<T> to)
-			throws IllegalArgumentException {
-		return addEdge(from, to) && addEdge(to, from);
 	}
 
 	/**

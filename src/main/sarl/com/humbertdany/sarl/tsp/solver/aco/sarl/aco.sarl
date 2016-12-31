@@ -7,50 +7,385 @@ import com.humbertdany.sarl.tsp.solver.aco.AntColonyTspSolver
 import io.sarl.core.DefaultContextInteractions
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters
 import io.sarl.core.Schedules
-import io.sarl.core.InnerContextAccess
-import io.sarl.core.ExternalContextAccess
+import io.sarl.core.Behaviors
+import com.humbertdany.sarl.tsp.solver.generic.ALauncher
+import com.humbertdany.sarl.tsp.solver.generic.NewTick
+import com.humbertdany.sarl.tsp.solver.generic.NewGraphState
+import com.humbertdany.sarl.tsp.tspgraph.TspGraph
+import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent
+import com.humbertdany.sarl.tsp.tspgraph.TspVertex
+import java.util.List
+import java.util.ArrayList
+import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData
+import com.humbertdany.sarl.tsp.solver.generic.StartSolvingEvent
+import java.util.HashMap
+import io.sarl.lang.core.Address
+import io.sarl.util.Scopes
+import com.humbertdany.sarl.tsp.core.graph.Edge
+import com.humbertdany.sarl.tsp.tspgraph.VertexInfo
+import java.util.Random
 
 event NewTspProblemParameters {
 	var params : AcoParameters
 }
 
-agent Launcher extends ALauncher {
+event AntFinishedRaceEvent {
+	var totalCost : double;
+	var flow : List<TspVertex>;
+}
+
+event InternalBehaviorInitialize {
 	
-	uses Logging, Lifecycle, DefaultContextInteractions, Schedules, InnerContextAccess, ExternalContextAccess
+}
+
+event NewTspGraphFourmiliere {
+	var graph : TspGraph
+}
+
+event FourmiAskDieEvent {
 	
-	/**
-	 * Store the AntColonyTspSolver reference
-	 * to call some specific method 
-	 * (like sending the actual Graph State)
+}
+
+event SendNewCurrentVertex {
+	var vertex : TspVertex
+}
+
+event FourmiFinishedRaceEvent {
+	
+}
+
+/**
+ * Handling all the stuff about getting parameters 
+ */
+abstract behavior AcoControllerBehavior {
+	
+	uses DefaultContextInteractions
+	
+	/** 
+	 * The TspGraph currently solving
 	 */
-	var solver : AntColonyTspSolver;
+	var graph : TspGraph;
 	
-	/**
+	/** 
 	 * Store the parameters available 
 	 * for the solver
 	 * (Number of ants, etc.)
 	 */
-	var params : AcoParameters; 
+	var params : AcoParameters;
+
+	on NewTspProblemParameters {
+		params = occurrence.params;
+		defineFourmiliereParams
+	}
+
+	on NewGraphState {
+		graph = occurrence.graph;
+		defineFourmiliereParams
+	}
 	
-	on Initialize {
-		solver = occurrence.parameters.get(0) as AntColonyTspSolver;
-		params = solver.parameters
+	abstract def defineFourmiliereParams;
+	
+	def spawnAnt {
+		spawn(Fourmi, graph.rootVertex, params)
+	}
+	
+}
+
+/**
+ * The Agent that register this behavior 
+ * will watch the graph and check if a solution
+ * is available
+ */
+behavior SolutionObserverBehavior extends AcoControllerBehavior {
+
+	uses Logging, DefaultContextInteractions
+	
+	var map : HashMap<Address, Integer> = new HashMap();
+	
+	var bestCostSoFar : Double = -1.0; // Impossible cost at the beginning
+	var bestWaySoFar : List<TspVertex> = new ArrayList();
+
+	on NewGraphState {
+		map = new HashMap();
+	}
+	
+	on AntFinishedRaceEvent {
+		if (bestCostSoFar == -1.0) {
+			bestCostSoFar = occurrence.totalCost;
+			info("New best cost : " + bestCostSoFar); 
+		} else if (occurrence.totalCost < bestCostSoFar) {
+			bestCostSoFar = occurrence.totalCost;
+			bestWaySoFar = occurrence.flow
+		}
+	}
+
+	on SendNewCurrentVertex {
+		var e = map.get(occurrence.source);
+		var nv : int;
+		if (e != null) {
+			nv = e + 1;
+		} else {
+			nv = 1;
+		}
+		if(nv == graph.verticies.size){
+			emit(new FourmiFinishedRaceEvent, Scopes.addresses(occurrence.source));
+		} else {
+			map.put(occurrence.source, nv);
+		}
+	}
+
+	override protected defineFourmiliereParams {
+		// Nothing has to be done for the observer, already up to date
+	}
+
+}
+
+/**
+ * The Agent that register this behavior 
+ * will handle the Fourmiliere, and so the solving process
+ */
+behavior FourmiliereBehavior extends AcoControllerBehavior {
+
+	uses DefaultContextInteractions, Schedules, Behaviors
+	
+	var antsCount : int = 0;
+	var desiredAntsCount : int = 0;
+	var pheromoneEvaporation : double = 0.0;
+	var msBetweenTick : int = 1;
+
+	on StartSolvingEvent {
+		wake(new NewTick);
 	}
 	
 	on NewTick {
-		info(params)
-		
-		fireNewState
-		// Infinite Loop on New Tick event 
-		in(params.msBetweenTick) [
+		if (graph != null && params != null) {
+			// Control the fourmi count
+			if (antsCount != desiredAntsCount) {
+			// Not enough fourmi, spawning some to get the count
+				if (antsCount < desiredAntsCount) {
+					for (var i = 0; i < desiredAntsCount - antsCount; i++) {
+						spawnAnt
+						antsCount++;
+					}
+				} else {
+					emit(new FourmiAskDieEvent)
+					antsCount = 0
+				}
+			}
+		}
+		// Infinite Loop on New Tick event
+		in(msBetweenTick) [
 			emit(new NewTick)
 		]
 	}
 	
-	on NewTspProblemParameters {
-		info("Launcher received new parameters from the event NewTspProblemParameters")
-		params = occurrence.params;
+	on FourmiFinishedRaceEvent {
+		emit(new StopSolvingEvent(), Scopes.addresses(occurrence.source)); 
+		spawnAnt
+	}
+	
+	/** 
+	 * Define the optimal desired fourmi count
+	 */
+	override protected defineFourmiliereParams {
+		if (graph != null && params != null) {
+
+			// Init pheromone for all unitialized edge
+			for (e : graph.edges) {
+				var tspEdgeData = e.data as TspEdgeData;
+				if (tspEdgeData.pheromoneLevel == null) {
+					tspEdgeData.pheromoneLevel = params.phInitialLevel
+					tspEdgeData.acoParameters = params
+				}
+			}
+
+			// Check Number of ants
+			var mapSize = graph.verticies.size;
+			var s = params.antsNumber.toLowerCase;
+			if (s.equals("few")) {
+				desiredAntsCount = mapSize * 1 // - Ants /Vertex
+			} else if (s.equals("alot")) {
+				desiredAntsCount = mapSize * 5 // - Ants / Vertex
+			} else {
+				desiredAntsCount = mapSize * 10 // - Ants / Vertex
+			}
+
+			// Pheromone Evaporation Check
+			if (pheromoneEvaporation != params.phEvaporation) {
+				pheromoneEvaporation = params.phEvaporation
+				for (e : graph.edges) {
+					var tspEdgeData = e.data as TspEdgeData;
+					tspEdgeData.acoParameters = params
+				}
+			}
+
+			// Update MS Ticks
+			if (msBetweenTick != params.msBetweenTick) {
+				msBetweenTick = params.msBetweenTick
+			}
+
+		}
 	}
 
+}
+
+/**
+ * Agent Fourmi
+ * 'Ant' comportement for ACO
+ */
+agent Fourmi {
+	
+	uses Logging, Schedules, Lifecycle, DefaultContextInteractions
+	
+	var currentVertex : TspVertex;
+	
+	var visitedVertex : List<TspVertex> = new ArrayList();
+
+	var random : Random = new Random();
+	
+	var totalCost : Double = 0.0;
+	
+	/** 
+	 * Store the parameters available 
+	 * for the solver
+	 * (Number of ants, etc.)
+	 */
+	var params : AcoParameters;
+	
+	on Initialize {
+		setLoggingName("Fourmi")
+		currentVertex = occurrence.parameters.get(0) as TspVertex
+		params = occurrence.parameters.get(1) as AcoParameters;
+		visitedVertex.add(currentVertex)
+	}
+
+	on NewTick {
+		var destination : Edge<VertexInfo>;
+		
+		// Get the available Ant moves
+		var availableEdgesMoves : List<Edge<VertexInfo>> = new ArrayList();
+		for (edge : currentVertex.outgoingEdges) { 
+			if (!(edge.to.name.equals(currentVertex.name))) {
+				availableEdgesMoves.add(edge)
+			}
+		}
+		
+		// Find the best move
+		// Calculate all the probabilities
+		var allowedYSum : double  = 0d;
+		var transitionProbabilities : double[] = newDoubleArrayOfSize(availableEdgesMoves.size);
+		var counter : int = 0;
+		for (e : availableEdgesMoves) {
+			var proba : double = computeProbabily(e);
+			transitionProbabilities.set(counter, proba);
+			allowedYSum += proba;
+			counter++;
+		}
+		
+		// Add the sub
+		var counter2 : int = 0;
+		var sum : double  = 0d;
+		for (e : availableEdgesMoves) {
+	        var weighted : double = transitionProbabilities.get(counter2) / allowedYSum;
+	        transitionProbabilities.set(counter2, weighted);
+	        sum += weighted;
+			counter2++;
+		}
+		
+		// Select the move
+		var counter3 : int = 0;
+		var random : double = random.nextDouble * sum;
+		for (e : availableEdgesMoves) {
+			random -= transitionProbabilities.get(counter3);
+			if (random <= 0) {
+				destination = e;
+			}
+			counter3++;
+		}
+		
+		if (destination != null) {
+			var data : TspEdgeData = destination.data as TspEdgeData;
+      		var dampened : Double = 0.001 / totalCost;
+			data.adjustWeight(dampened);
+			currentVertex = destination.to as TspVertex;
+			visitedVertex.add(currentVertex)
+			totalCost = totalCost + destination.cost; 
+			emit(new SendNewCurrentVertex => [vertex = currentVertex])
+		}
+	}
+	
+	on FourmiFinishedRaceEvent {
+		var evt : AntFinishedRaceEvent = new AntFinishedRaceEvent();
+		evt.flow = this.visitedVertex;
+		evt.totalCost = totalCost;
+		emit(evt);
+	}
+
+	on StopSolvingEvent {
+		killMySelf
+	}
+	
+	on FourmiAskDieEvent {
+		killMySelf
+	}
+	
+	def killMySelf {
+		in(1000) [
+			killMe
+		]
+	}
+
+	on NewTspProblemParameters {
+		params = occurrence.params;
+	}
+	/*
+	 * (pheromone(row,col) ^ ALPHA) * ((1/distance(row,col)) ^ BETA)
+	 */
+	def computeNumerator(vertex : TspVertex) : Double {
+	      var weight : Double = currentVertex.cost(vertex)
+	      if (weight != 0d) {
+			var alpha : double = Math.pow(weight, params.alpha)
+			var beta : double = Math.pow(1d / weight, params.beta);
+			return (alpha * beta);
+		}
+		return 0d;
+	}
+	
+	def computeProbabily(e : Edge<VertexInfo>) : Double {
+		var to = e.to as TspVertex;
+		return computeNumerator(to);
+	}
+	
+}
+
+/**
+ * Agent used to pipe message with Java
+ * Has the Fourmiliere Behavior 
+ */
+agent Launcher extends ALauncher {
+	
+	uses DefaultContextInteractions, Behaviors, Logging
+	
+	var fourmiliereBehavior : FourmiliereBehavior;
+	var solutionObserverBehavior : SolutionObserverBehavior;
+	
+	on Initialize {
+		solver = occurrence.parameters.get(0) as AntColonyTspSolver;
+		
+		// Register Both ACO Behavior
+		fourmiliereBehavior = new FourmiliereBehavior(this)
+		registerBehavior(fourmiliereBehavior);
+
+		solutionObserverBehavior = new SolutionObserverBehavior(this);
+		registerBehavior(solutionObserverBehavior); 
+		
+		emit(new NewTspProblemParameters => [params = solver.parameters as AcoParameters]);
+		wake(new InternalBehaviorInitialize)
+		setLoggingName("Launcher")
+	}
+
+	on NewTick {
+		fireNewState
+	}
 	
 }

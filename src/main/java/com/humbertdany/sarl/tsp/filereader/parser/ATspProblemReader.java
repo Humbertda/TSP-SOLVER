@@ -2,6 +2,7 @@ package com.humbertdany.sarl.tsp.filereader.parser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.humbertdany.sarl.tsp.core.helper.DistanceHelper;
+import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
@@ -61,9 +62,10 @@ abstract public class ATspProblemReader implements ITspFileReader {
 			sort.toArray(sorted);
 			for(int i = 0; i < 3; i++){
 				final Elem e = sorted[i];
-				graph.addEdge(v, vertices[e.idInArray]);
+				graph.addEdge(v, vertices[e.idInArray], new TspEdgeData());
 			}
 		}
+		graph.setRootVertex(vertices[0]);
 
 		return graph;
 	}

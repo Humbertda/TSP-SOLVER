@@ -13,7 +13,7 @@ import java.util.List;
  * @version $Revision$
  * @param <T>
  */
-public class Vertex<T> {
+public class Vertex<T> implements ChangeObserver {
 
 	@JsonIgnore
 	private Graph<T> owner;
@@ -68,7 +68,7 @@ public class Vertex<T> {
 		outgoingEdges = new ArrayList<>();
 		name = n;
 		mark = false;
-		this.data = data;
+		this.setData(data);
 	}
 
 	/**
@@ -93,6 +93,9 @@ public class Vertex<T> {
 	@JsonIgnore
 	public void setData(T data) {
 		this.data = data;
+		if(this.data instanceof VertexData){
+			((VertexData) this.data).onChange(this);
+		}
 	}
 
 	/**
@@ -108,10 +111,10 @@ public class Vertex<T> {
 	public boolean addEdge(Edge<T> e) {
 		if (e.getFrom() == this) {
 			outgoingEdges.add(e);
-			owner.notifyGraphChange();
+			this.onChanged();
 		} else if (e.getTo() == this) {
 			incomingEdges.add(e);
-			owner.notifyGraphChange();
+			this.onChanged();
 		} else
 			return false;
 		return true;
@@ -124,10 +127,10 @@ public class Vertex<T> {
 	 *          the destination vertex
 	 */
 	@JsonIgnore
-	public void addOutgoingEdge(Vertex<T> to) {
-		Edge<T> out = new Edge<>(this, to);
+	public void addOutgoingEdge(Vertex<T> to, EdgeData d) {
+		Edge<T> out = new Edge<>(this, to, d);
 		outgoingEdges.add(out);
-		owner.notifyGraphChange();
+		this.onChanged();
 	}
 
 	/**
@@ -137,10 +140,10 @@ public class Vertex<T> {
 	 *          the starting vertex
 	 */
 	@JsonIgnore
-	public void addIncomingEdge(Vertex<T> from) {
-		Edge<T> out = new Edge<>(this, from);
+	public void addIncomingEdge(Vertex<T> from, EdgeData d) {
+		Edge<T> out = new Edge<>(this, from, d);
 		incomingEdges.add(out);
-		owner.notifyGraphChange();
+		this.onChanged();
 	}
 
 	/**
@@ -172,10 +175,10 @@ public class Vertex<T> {
 	public boolean remove(Edge<T> e) {
 		if (e.getFrom() == this) {
 			incomingEdges.remove(e);
-			owner.notifyGraphChange();
+			this.onChanged();
 		} else if (e.getTo() == this) {
 			outgoingEdges.remove(e);
-			owner.notifyGraphChange();
+			this.onChanged();
 		} else
 			return false;
 		return true;
@@ -239,7 +242,7 @@ public class Vertex<T> {
 	 * @return outgoing edge list
 	 */
 	@JsonIgnore
-	public List getOutgoingEdges() {
+	public List<Edge<T>> getOutgoingEdges() {
 		return this.outgoingEdges;
 	}
 
@@ -255,7 +258,7 @@ public class Vertex<T> {
 		for (Edge<T> e : outgoingEdges) {
 			if (e.getTo() == dest)
 				return e;
-		}
+		} 
 		return null;
 	}
 
@@ -408,5 +411,10 @@ public class Vertex<T> {
 		tmp.append(e.getCost());
 		tmp.append('}');
 		return tmp.toString();
+	}
+
+	@Override
+	public void onChanged() {
+		owner.notifyGraphChange();
 	}
 }
