@@ -9,7 +9,7 @@ public class SarlTspSolveTest extends ATest {
 
 	public static void main(String[] args){
 		AcoParameters testParams = AcoParameters.buildDefault();
-		testParams.setMsBetweenTick(10);
+		testParams.setMsBetweenTick(AcoParameters.MS_TICKS_MIN_VALUE);
 		AntColonyTspSolver solver = new AntColonyTspSolver(runnable -> {
 			runnable.run();
 		}, testParams);
