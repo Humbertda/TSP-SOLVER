@@ -2,7 +2,6 @@ package com.humbertdany.sarl.tsp.core.graph;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 
 /**
  * A directed, weighted edge in a graph
@@ -105,6 +104,10 @@ public class Edge<T> {
 	 */
 	public EdgeData getData() {
 		return data;
+	}
+
+	public void setData(EdgeData data) {
+		this.data = data;
 	}
 
 	/**

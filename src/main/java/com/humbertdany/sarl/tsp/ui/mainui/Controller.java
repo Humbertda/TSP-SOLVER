@@ -1,7 +1,6 @@
 package com.humbertdany.sarl.tsp.ui.mainui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.humbertdany.sarl.tsp.core.graph.EdgeData;
 import com.humbertdany.sarl.tsp.core.graph.Vertex;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
@@ -9,6 +8,7 @@ import com.humbertdany.sarl.tsp.core.ui.MGridPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.SolverObserver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
+import com.humbertdany.sarl.tsp.solver.tester.AntColonySolverTester;
 import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Controller extends JfxController implements PopupObserver, SolverObserver, GuiListener, WebviewReadyObserver {
+public class Controller extends JfxController implements PopupObserver, SolverObserver, GuiListener {
 
 	private static final String HTML_VIEW_FILENAME = "/mainUi/webView.html";
 
@@ -75,11 +75,14 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		webEngine = webViewer.getEngine();
 		jsApp = new JsApplication(webEngine);
 
-		this.onWebviewReady(this);
-
 		webEngine.load(this.getClass().getResource(Controller.HTML_VIEW_FILENAME).toExternalForm());
 		webEngine.getLoadWorker().stateProperty().addListener((ov, oldState, newState) -> {
 			if(newState == State.SUCCEEDED){
+				JSObject window = (JSObject)webEngine.executeScript("window");
+				window.setMember("javaApp", jsApp);
+				webEngine.executeScript("init(false)");
+				tspGraph = new TspGraph();
+				jsApp.sendNewMap(tspGraph);
 				if(webviewReadyObservers.size() != 0){
 					webviewReadyObservers.forEach(WebviewReadyObserver::webviewIsReady);
 				}
@@ -91,9 +94,9 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		list.addAll(tspSolverLibrary.getSolvers());
 		solverList.setItems(list);
 		solverList.setOnMouseClicked(event -> {
-			ATspSolver solver = solverList.getSelectionModel().getSelectedItem();
-			if(solver != null){
-				enterSolverMode(solver);
+			ATspSolver selectedSvl = solverList.getSelectionModel().getSelectedItem();
+			if(selectedSvl != null){
+				enterSolverMode(selectedSvl);
 			}
 		});
 
@@ -101,17 +104,9 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 			switchMode(false);
 			solver.offSolverDone(this);
 			solver = null;
+			jsApp.sendNewMap(tspGraph);
 		});
 
-	}
-
-	@Override
-	public void webviewIsReady() {
-		JSObject window = (JSObject)webEngine.executeScript("window");
-		window.setMember("javaApp", jsApp);
-		webEngine.executeScript("init()");
-		tspGraph = new TspGraph();
-		jsApp.sendNewMap(tspGraph);
 	}
 
 	/**
@@ -134,6 +129,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	private void bindSolver(final ATspSolver solver){
 		paramPane.getChildren().clear();
 		this.solver = solver;
+		jsApp.sendNewMap(this.tspGraph);
 		solver.onSolverDone(this);
 		solver.buildGui(paramPane);
 	}
@@ -160,7 +156,6 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		 */
 		public void sendNewTspMap(final String action, final String arg) {
 			try {
-				log(action.toLowerCase() + " performed");
 				switch (action.toLowerCase()){
 					case "create city":
 						CityEntry cityEntry = mapper.readValue(arg, CityEntry.class);
@@ -184,7 +179,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 							tspGraph.addEdge(
 									tspGraph.findVertexByName(entries[0].getName()),
 									tspGraph.findVertexByName(entries[1].getName()),
-									new TspEdgeData()
+									solver.makeEdgeData()
 							);
 						} else {
 							logError("The two cities can't be found");
@@ -213,6 +208,10 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 			callbacksNewMap.add(arg);
 		}
 
+		public void logMessage(final String arg){
+			log("JS: " + arg);
+		}
+
 		// Bellow this line, all the functions are not called in JS
 
 		/**
@@ -221,7 +220,8 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		 * @param arg String
 		 */
 		void sendNewMap(final D3GraphDisplayable arg){
-			final String toSend = arg.getD3String();
+			final ATspSolver tempSlv = solver == null ? new AntColonySolverTester() : solver;
+			final String toSend = arg.getD3String(tempSlv);
 			for(String s : callbacksNewMap){
 				try {
 					webEngine.executeScript(s + "('" + toSend +"')");
@@ -233,7 +233,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		}
 
 		void updateMap(final D3GraphDisplayable arg){
-			final String toSend = arg.getD3String();
+			final String toSend = arg.getD3String(solver);
 			for(String s : callbacksUpdateMap){
 				try {
 					webEngine.executeScript(s + "('" + toSend +"')");

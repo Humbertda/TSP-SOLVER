@@ -16,7 +16,6 @@ import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex
 import java.util.List
 import java.util.ArrayList
-import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData
 import com.humbertdany.sarl.tsp.solver.generic.StartSolvingEvent
 import java.util.HashMap
 import io.sarl.lang.core.Address
@@ -24,6 +23,7 @@ import io.sarl.util.Scopes
 import com.humbertdany.sarl.tsp.core.graph.Edge
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo
 import java.util.Random
+import com.humbertdany.sarl.tsp.solver.aco.utils.AcoTspEdgeData
 
 event NewTspProblemParameters {
 	var params : AcoParameters
@@ -192,10 +192,9 @@ behavior FourmiliereBehavior extends AcoControllerBehavior {
 
 			// Init pheromone for all unitialized edge
 			for (e : graph.edges) {
-				var tspEdgeData = e.data as TspEdgeData;
+				var tspEdgeData = e.data as AcoTspEdgeData;
 				if (tspEdgeData.pheromoneLevel == null) {
 					tspEdgeData.pheromoneLevel = params.phInitialLevel
-					tspEdgeData.acoParameters = params
 				}
 			}
 
@@ -208,15 +207,6 @@ behavior FourmiliereBehavior extends AcoControllerBehavior {
 				desiredAntsCount = mapSize * 5 // - Ants / Vertex
 			} else {
 				desiredAntsCount = mapSize * 10 // - Ants / Vertex
-			}
-
-			// Pheromone Evaporation Check
-			if (pheromoneEvaporation != params.phEvaporation) {
-				pheromoneEvaporation = params.phEvaporation
-				for (e : graph.edges) {
-					var tspEdgeData = e.data as TspEdgeData;
-					tspEdgeData.acoParameters = params
-				}
 			}
 
 			// Update MS Ticks
@@ -260,14 +250,16 @@ agent Fourmi {
 	}
 
 	on NewTick {
+		if(params == null) return;
+		
 		var destination : Edge<VertexInfo>;
 		
 		// Get the available Ant moves
-		var availableEdgesMoves : List<Edge<VertexInfo>> = new ArrayList();
+		var availableEdgesMoves : List<Edge<VertexInfo>> = new ArrayList(); 
 		for (edge : currentVertex.outgoingEdges) { 
 			if (!(edge.to.name.equals(currentVertex.name))) {
 				availableEdgesMoves.add(edge)
-			}
+			} 
 		}
 		
 		// Find the best move
@@ -304,9 +296,9 @@ agent Fourmi {
 		}
 		
 		if (destination != null) {
-			var data : TspEdgeData = destination.data as TspEdgeData;
+			var data : AcoTspEdgeData = destination.data as AcoTspEdgeData;
       		var dampened : Double = 0.001 / totalCost;
-			data.adjustWeight(dampened);
+			data.adjustWeight(dampened, params.phEvaporation);
 			currentVertex = destination.to as TspVertex;
 			visitedVertex.add(currentVertex)
 			totalCost = totalCost + destination.cost; 
@@ -318,7 +310,7 @@ agent Fourmi {
 		var evt : AntFinishedRaceEvent = new AntFinishedRaceEvent();
 		evt.flow = this.visitedVertex;
 		evt.totalCost = totalCost;
-		emit(evt);
+		emit(evt); 
 	}
 
 	on StopSolvingEvent {

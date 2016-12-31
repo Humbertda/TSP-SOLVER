@@ -1,4 +1,5 @@
 import com.humbertdany.sarl.tsp.core.graph.*;
+import com.humbertdany.sarl.tsp.solver.tester.AntColonySolverTester;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
@@ -49,7 +50,7 @@ public class GraphTest extends ATest {
 			}
 		});
 		newLine();
-		log(g.getD3String());
+		log(g.getD3String(new AntColonySolverTester()));
 
 	}
 

@@ -7,7 +7,6 @@ import com.humbertdany.sarl.tsp.solver.generic.StartSolvingEvent;
 import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import io.sarl.lang.core.EventSpace;
-import javafx.application.Platform;
 
 import java.util.UUID;
 
@@ -48,8 +47,8 @@ abstract public class ASarlSolver extends ATspSolver implements EnvironmentListe
 	@Override
 	final public void startSolving(TspGraph graph) {
 		this.graph = graph;
+		verifyGraph(this.graph);
 		startSarlSolving();
-
 	}
 
 	@Override
@@ -82,5 +81,6 @@ abstract public class ASarlSolver extends ATspSolver implements EnvironmentListe
 	// Abstract methods
 
 	abstract protected void startSarlSolving();
+	abstract protected void verifyGraph(TspGraph graph);
 
 }

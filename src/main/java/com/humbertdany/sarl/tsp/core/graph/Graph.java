@@ -494,8 +494,6 @@ public class Graph<T> {
 		logger = LogManager.getLogger(this.getClass());
 	}
 
-
-
 	// Observer
 
 	@JsonIgnore

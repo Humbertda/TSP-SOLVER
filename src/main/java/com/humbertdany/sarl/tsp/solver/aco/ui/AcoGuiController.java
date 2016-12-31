@@ -1,7 +1,5 @@
 package com.humbertdany.sarl.tsp.solver.aco.ui;
 
-import java.util.ArrayList;
-
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MCheckBox;
 import com.humbertdany.sarl.tsp.core.ui.MGridPane;
@@ -12,6 +10,8 @@ import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.Pane;
+
+import java.util.ArrayList;
 
 public class AcoGuiController extends JfxController {
 

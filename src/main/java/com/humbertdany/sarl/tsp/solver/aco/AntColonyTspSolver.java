@@ -1,5 +1,6 @@
 package com.humbertdany.sarl.tsp.solver.aco;
 
+import com.humbertdany.sarl.tsp.core.graph.Edge;
 import com.humbertdany.sarl.tsp.core.params.ApplicationParametersObserver;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.core.utils.Runner;
@@ -8,6 +9,10 @@ import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
 import com.humbertdany.sarl.tsp.solver.aco.sarl.Launcher;
 import com.humbertdany.sarl.tsp.solver.aco.sarl.NewTspProblemParameters;
 import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
+import com.humbertdany.sarl.tsp.solver.aco.utils.AcoTspEdgeData;
+import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
+import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
+import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 import io.janusproject.Boot;
 import io.janusproject.util.LoggerCreator;
 
@@ -58,6 +63,22 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 		return "SARL AcoSolver";
 	}
 
+	@Override
+	public String getColorFor(Edge<VertexInfo> e) {
+		if(e.getData() instanceof AcoTspEdgeData){
+			final AcoTspEdgeData data = (AcoTspEdgeData) e.getData();
+			final Double pheromoneLevel = data.getPheromoneLevel(); // TODO real color
+			return "yellow";
+		} else {
+			return "red"; // should not happen
+		}
+	}
+
+	@Override
+	public TspEdgeData makeEdgeData() {
+		return new AcoTspEdgeData();
+	}
+
 	// Solving process
 
 	@Override
@@ -72,6 +93,14 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 			);
 		} catch (Exception e) {
 			System.exit(-1);
+		}
+	}
+
+	protected void verifyGraph(TspGraph graph) {
+		for(Edge<VertexInfo> e : graph.getEdges()){
+			if(e.getData() == null){
+				e.setData(new AcoTspEdgeData());
+			}
 		}
 	}
 

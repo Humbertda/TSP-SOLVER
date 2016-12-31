@@ -1,9 +1,8 @@
-import java.util.concurrent.Semaphore;
-
+import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javafx.application.Platform;
+import java.util.concurrent.Semaphore;
 
 abstract class ATest {
 

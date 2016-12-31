@@ -1,9 +1,12 @@
 package com.humbertdany.sarl.tsp.solver.tester;
 
+import com.humbertdany.sarl.tsp.core.graph.Edge;
 import com.humbertdany.sarl.tsp.core.params.AApplicationParameters;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.solver.ATspSolver;
+import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
+import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -33,7 +36,7 @@ public class AntColonySolverTester extends ATspSolver {
 	@Override
 	public void startSolving(TspGraph graph) {
 		log("the Tester solver received a startSolving request for the following graph (as JS)");
-		log(graph.getD3String());
+		log(graph.getD3String(this));
 		this.notifyNewGraphState(graph);
 		this.notifySolverDone();
 	}
@@ -41,6 +44,16 @@ public class AntColonySolverTester extends ATspSolver {
 	@Override
 	public void stopSolving() {
 		log("Stop solving");
+	}
+
+	@Override
+	public String getColorFor(Edge<VertexInfo> e) {
+		return "blue";
+	}
+
+	@Override
+	public TspEdgeData makeEdgeData() {
+		return new TspEdgeData();
 	}
 
 	@Override
