@@ -18,10 +18,14 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 	
 	private AcoParameters parameters;
 
-	public AntColonyTspSolver(Runner<Runnable> r){
+	public AntColonyTspSolver(Runner<Runnable> r, AcoParameters p){
 		super(r);
-		parameters = AcoParameters.buildDefault();
+		parameters = p;
 		parameters.watchParametersChange(this);
+	}
+	
+	public AntColonyTspSolver(Runner<Runnable> r){
+		this(r, AcoParameters.buildDefault()); 
 	}
 
 	@Override
