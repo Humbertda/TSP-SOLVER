@@ -41,7 +41,7 @@ public class AcoGuiController extends JfxController {
 		checkboxTia = new MCheckBox("TIA", getParams().isTia());
 		checkboxMmas = new MCheckBox("MMAS", getParams().isMmas());
 
-		timeMsSlider = new MSlider(0.1, 5, getParams().getMsBetweenTick()/1000);
+		timeMsSlider = new MSlider(AcoParameters.MS_TICKS_MIN_VALUE/1000, 5, getParams().getMsBetweenTick()/1000);
 		
 		phEvaporation = new MSlider(0, 1, getParams().getPhEvaporation());
 		phInitialLevel = new MSlider(0, 10, getParams().getPhInitialLevel());

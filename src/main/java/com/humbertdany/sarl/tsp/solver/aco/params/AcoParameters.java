@@ -12,6 +12,8 @@ public class AcoParameters extends AApplicationParameters {
 	 *
 	 */
 	private static final long serialVersionUID = -3291340246882818235L;
+	
+	public static final int MS_TICKS_MIN_VALUE = 1000;
 
 	private Boolean isTia = false;
 	private Boolean isMmas = false;
@@ -89,6 +91,7 @@ public class AcoParameters extends AApplicationParameters {
 	}
 
 	public void setMsBetweenTick(int ms){
+		if(ms < MS_TICKS_MIN_VALUE) ms = MS_TICKS_MIN_VALUE;
 		msBetweenTick = ms;
 		notify(this);
 	}

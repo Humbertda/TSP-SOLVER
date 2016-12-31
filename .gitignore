@@ -12,8 +12,10 @@
 hs_err_pid*
 
 # Eclipse
-.classpath
-.project
+# We want to keep the classpath and the project so Eclipse can corretly import the Sarl-Maven project
+# .classpath 
+# .project
+bin/
 .settings/
  
 # Intellij
