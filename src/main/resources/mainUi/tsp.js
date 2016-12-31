@@ -1,14 +1,17 @@
 /**
  * contain the draw API of the project
  */
-;var tspDrawer = (function (d3, _) {
+;var initTspDrawerLibrary = (function (d3, _, logger) {
 	'use strict';
 
 	var width = 600,
 	    height = 600,
 		optimalCitySize = 5,
 	    cities = [],
-		edges = [];
+		edges = [],
+		pathDraw = [];
+	
+	var log = logger.log;
 	
 	var openRightClicEvent = null;
 	
@@ -54,6 +57,7 @@
 	var createPath = function(v){
 		return _.extend({
 			cost: 0,
+			rgbaColor: "blue",
 			from: {
 				vertexInfo: {
 					x: 0.0,
@@ -150,14 +154,14 @@
 				strPoints += p.x+","+p.y+' ';
 			});
 			
-			elementsContainerG.append("polygon")
-				.attr("fill", "blue")
+			pathDraw.push(elementsContainerG.append("polygon")
+				.attr("fill", edge["rgbaColor"])
 				.attr("points", strPoints)
 				.attr("class", "connection")
 				.on('contextmenu', function(){
 					selectedPath = edge;
 					$(cmRemoveLink).show();
-				});
+				}));
 		});
 	}
 	
@@ -346,7 +350,8 @@
 		_.each(rawEdges, function(rawEdge){
 			edges.push(createPath({
 				from: createCityFromJava(rawEdge['from']),
-				to: createCityFromJava(rawEdge['to'])
+				to: createCityFromJava(rawEdge['to']),
+				rgbaColor: rawEdge["rgbaColor"]
 			}));
 		});
 		width = (maxX-minX);
@@ -359,9 +364,20 @@
 		drawCities();
 	}
 	
+	var newStateReceived = function(newState){
+		log("redrawing state");
+		var json = JSON.parse(newState);
+		_.each(json['edges'], function(path, i){
+			var drawEdge = edges[i];
+			if(drawEdge['from']['name'] == path['from']['name'] && drawEdge['to']['name'] == path['to']['name']){
+				pathDraw[i].attr("fill", path["rgbaColor"])
+			}
+		});
+	};
 	
 	return {
 		init: init,
+		newState: newStateReceived,
 		onModification: onModification
 	}
-})(d3, _);
+});
