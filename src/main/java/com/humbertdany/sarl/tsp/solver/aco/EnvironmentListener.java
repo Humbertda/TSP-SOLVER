@@ -9,5 +9,5 @@ import io.sarl.lang.core.Identifiable;
 
 public interface EnvironmentListener extends Identifiable {
 	void newGraphState(final TspGraph g);
-	void newBestPath(final List<TspVertex> flow); 
+	void newBestPath(final List<TspVertex> flow, final double cost); 
 }

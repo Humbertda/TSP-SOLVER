@@ -9,6 +9,6 @@ public interface SolverObserver {
 
 	void onTspProblemSolved();
 	void onNewGraphState(TspGraph g);
-	void onNewBestPath(List<TspVertex> flow); 
+	void onNewBestPath(List<TspVertex> flow, final double cost); 
 
 }

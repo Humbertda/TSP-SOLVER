@@ -87,10 +87,10 @@ abstract public class ATspSolver implements GraphObserver<TspGraph> {
 		}
 	}
 	
-	protected final void notifyNewBestPath(final List<TspVertex> flow){
+	protected final void notifyNewBestPath(final List<TspVertex> flow, final double cost){
 		if(this.solverObservers.size() != 0){
 			for(SolverObserver obs : this.solverObservers){
-				obs.onNewBestPath(flow);
+				obs.onNewBestPath(flow, cost);
 			}
 		}
 	}

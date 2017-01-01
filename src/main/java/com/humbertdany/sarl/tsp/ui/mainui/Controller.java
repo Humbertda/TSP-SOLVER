@@ -371,8 +371,9 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	}
 	
 	@Override
-	public void onNewBestPath(List<TspVertex> flow){
+	public void onNewBestPath(List<TspVertex> flow, final double cost){
 		jsApp.newBestPath(flow);
+		// TODO do something with the cost, maybe display it on a frame ! 
 	}
 
 	public void openWebviewDebugger(){

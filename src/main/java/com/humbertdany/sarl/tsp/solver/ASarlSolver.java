@@ -82,8 +82,8 @@ abstract public class ASarlSolver extends ATspSolver implements EnvironmentListe
 	}
 	
 	@Override
-	public void newBestPath(List<TspVertex> flow) {
-		this.notifyNewBestPath(flow);
+	public void newBestPath(List<TspVertex> flow, final double cost) {
+		this.notifyNewBestPath(flow, cost);
 	}
 
 

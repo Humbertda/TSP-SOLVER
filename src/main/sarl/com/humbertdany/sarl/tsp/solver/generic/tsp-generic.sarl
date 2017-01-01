@@ -26,6 +26,7 @@ event StartSolvingEvent {
 
 event NewBestPath {
 	var flow : List<TspVertex>
+	var cost : double
 }
 
 abstract agent ALauncher {
@@ -60,7 +61,7 @@ abstract agent ALauncher {
 	}
 	
 	on NewBestPath {
-		solver.runLater(new NewBestPathRunnable(listeners, occurrence.flow)); 
+		solver.runLater(new NewBestPathRunnable(listeners, occurrence.flow, occurrence.cost)); 
 	}
 
 	on StopSolvingEvent {
@@ -113,15 +114,17 @@ class NewBestPathRunnable implements Runnable {
 
 	var listeners : ArrayList<EnvironmentListener>
 	var flow : List<TspVertex>
+	var cost : double;
 
-	new(listeners : ArrayList<EnvironmentListener>, flow : List<TspVertex>) {
+	new(listeners : ArrayList<EnvironmentListener>, flow : List<TspVertex>, cost : double) {
 		this.listeners = listeners;
 		this.flow = flow;
+		this.cost = cost; 
 	}
 
 	override run {
 		for (listener : this.listeners) {
-			listener.newBestPath(flow)
+			listener.newBestPath(flow, cost)
 		}
 	}
 	
