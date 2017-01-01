@@ -10,6 +10,8 @@ import io.sarl.core.Schedules
 import io.sarl.core.Logging
 import javafx.application.Platform
 import java.util.ArrayList
+import java.util.List
+import com.humbertdany.sarl.tsp.tspgraph.TspVertex
 
 event StopSolvingEvent {
 }
@@ -20,6 +22,10 @@ event NewGraphState {
 
 event StartSolvingEvent {
 	var graph : TspGraph
+}
+
+event NewBestPath {
+	var flow : List<TspVertex>
 }
 
 abstract agent ALauncher {
@@ -52,6 +58,10 @@ abstract agent ALauncher {
 		solver.setEventSpace(defaultSpace);
 		solver.sarlReady();
 	}
+	
+	on NewBestPath {
+		solver.runLater(new NewBestPathRunnable(listeners, occurrence.flow)); 
+	}
 
 	on StopSolvingEvent {
 		in(100)[
@@ -75,6 +85,7 @@ abstract agent ALauncher {
 	}
 
 }
+
 /** 
  * Runnable used to inform the main Application
  * (running on JavaFX Thread) 
@@ -96,4 +107,22 @@ class JfxInfoRunnable implements Runnable {
 		}
 	}
 
+}
+
+class NewBestPathRunnable implements Runnable {
+
+	var listeners : ArrayList<EnvironmentListener>
+	var flow : List<TspVertex>
+
+	new(listeners : ArrayList<EnvironmentListener>, flow : List<TspVertex>) {
+		this.listeners = listeners;
+		this.flow = flow;
+	}
+
+	override run {
+		for (listener : this.listeners) {
+			listener.newBestPath(flow)
+		}
+	}
+	
 }

@@ -47,8 +47,8 @@ public class AcoGuiController extends JfxController {
 		phInitialLevel = new MSlider(0, 10, getParams().getPhInitialLevel());
 		phMinMaxRatio = new MSlider(0, 1, getParams().getPhMinMaxRatio());
 		
-		alphaSlider = new MSlider(0, 10, getParams().getAlpha());
-		betaSlider = new MSlider(0, 10, getParams().getBeta());
+		alphaSlider = new MSlider(0.0, 1.0, getParams().getAlpha());
+		betaSlider = new MSlider(1.0, 10.0, getParams().getBeta());
 		
 		antNumberChoicebox = new ChoiceBox<String>(FXCollections.observableArrayList(
 		    "Few", "Normal", "Alot")

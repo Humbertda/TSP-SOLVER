@@ -68,6 +68,9 @@
                 },
                 logMessage: function(message){
                     info(message);
+                },
+                newBestPath: function(arg){
+                    info(arg)
                 }
             }
         }
@@ -126,6 +129,9 @@
             },
             logMessage: function(arg){
                 app.log(arg);
+            },
+            newBestPath: function(arg){
+                tspDrawer.newBestPath(arg)
             }
         };
 
@@ -181,6 +187,11 @@
     function logMessage(arg){
         validInit();
         jsPipe.logMessage(arg);
+    }
+
+    function newBestPath(arg){
+        validInit();
+        jsPipe.newBestPath(arg);
     }
 
     //// TESTS ////

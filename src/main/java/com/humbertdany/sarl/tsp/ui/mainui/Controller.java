@@ -1,5 +1,6 @@
 package com.humbertdany.sarl.tsp.ui.mainui;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.humbertdany.sarl.tsp.core.graph.Vertex;
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
@@ -212,7 +213,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		public void logMessage(final String arg){
 			log("JS: " + arg);
 		}
-
+		
 		// Bellow this line, all the functions are not called in JS
 
 		/**
@@ -230,6 +231,25 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 					logError(e.getMessage() + "Map sent: " + toSend);
 				}
 
+			}
+		}
+
+		public void newBestPath(final List<TspVertex> vertices){
+			try {
+				int counter = 0;
+				StringBuilder sb = new StringBuilder();
+				sb.append("[");
+				for(TspVertex v : vertices){
+					sb.append(mapper.writeValueAsString(v));
+					if(counter != vertices.size()-1){
+						sb.append(", ");
+					}
+					counter++;
+				}
+				sb.append("]");
+				webEngine.executeScript("newBestPath('" + sb.toString() +"')");
+			} catch (JsonProcessingException e) {
+				logError(e.getMessage());
 			}
 		}
 
@@ -348,6 +368,11 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	@Override
 	public void closing(MainUI ui) {
 		this.reset();
+	}
+	
+	@Override
+	public void onNewBestPath(List<TspVertex> flow){
+		jsApp.newBestPath(flow);
 	}
 
 	public void openWebviewDebugger(){

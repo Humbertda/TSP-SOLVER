@@ -12,10 +12,12 @@ import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
 import com.humbertdany.sarl.tsp.solver.aco.utils.AcoTspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
+import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 import io.janusproject.Boot;
 import io.janusproject.util.LoggerCreator;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -65,14 +67,7 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 
 	@Override
 	public String getColorFor(Edge<VertexInfo> e) {
-		if(e.getData() instanceof AcoTspEdgeData){
-			final AcoTspEdgeData data = (AcoTspEdgeData) e.getData();
-			final Double pheromoneLevel = data.getPheromoneLevel(); 
-			// TODO real color : log(pheromoneLevel);
-			return "yellow";
-		} else {
-			return "rgba(0, 0, 0, 0)"; // should not happen
-		}
+		return "rgba(170, 170, 170, 0.1)";
 	}
 
 	@Override

@@ -16,12 +16,13 @@ import java.util.List
 import java.util.ArrayList
 import java.util.HashMap
 import io.sarl.lang.core.Address
-import io.sarl.util.Scopes
+import io.sarl.util.Scopes 
 import com.humbertdany.sarl.tsp.core.graph.Edge
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo
 import java.util.Random
 import com.humbertdany.sarl.tsp.solver.aco.utils.AcoTspEdgeData
 import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent
+import com.humbertdany.sarl.tsp.solver.generic.NewBestPath
 
 /**
  * Start the solving 
@@ -67,9 +68,9 @@ event AntTickOver {
 event AntReadyForWork {
 	
 }
-
+ 
 event ProcessControllerEvent {
-	
+	 
 }
 
 /**
@@ -91,7 +92,7 @@ abstract behavior AcoControllerBehavior {
 	 */
 	var params : AcoParameters;
 
-	on NewTspProblemParameters {
+	on NewTspProblemParameters { 
 		if (occurrence.params != null) {
 			params = occurrence.params;
 			ready = graph != null && params != null
@@ -120,19 +121,18 @@ behavior SolutionObserverBehavior extends AcoControllerBehavior {
 
 	uses DefaultContextInteractions, Logging
 	
-	var map : HashMap<Address, Integer> = new HashMap();
+	var visitedMap : HashMap<Address, List<String>> = new HashMap();
 	
 	var bestCostSoFar : Double = -1.0; // Impossible cost at the beginning
 	var bestWaySoFar : List<TspVertex> = new ArrayList();
 
 	on NewGraphState {
-		map = new HashMap();
+		visitedMap = new HashMap();
 		bestCostSoFar = -1.0;
 		bestWaySoFar = new ArrayList();
 	}
 	
 	on FourmiFinishedWorking {
-		// info("Fourmi finished race")
 		if (bestCostSoFar == -1.0) {
 			bestCostSoFar = occurrence.totalCost;
 			bestWaySoFar = occurrence.flow
@@ -145,21 +145,29 @@ behavior SolutionObserverBehavior extends AcoControllerBehavior {
 	}
 	
 	def newBest {
-		//info("New best cost : " + bestCostSoFar);
+		var strRes : StringBuilder = new StringBuilder;
+		for (e : bestWaySoFar){
+			strRes.append(e.name).append(" > ")
+		}
+		var evt = new NewBestPath;
+		evt.flow = bestWaySoFar
+		emit(evt)
 	}
 
 	on AntTickOver {
-		var e = map.get(occurrence.source);
-		var nv : int;
-		if (e != null) {
-			nv = e + 1;
-		} else {
-			nv = 1;
+		var addr = occurrence.source;
+		var vertex = occurrence.vertex;
+		if (visitedMap.get(addr) == null) {
+			visitedMap.put(addr, new ArrayList())
 		}
-		if(nv == graph.verticies.size){
-			emit(new FourmiFinishedRaceEvent, Scopes.addresses(occurrence.source));
-		} else {
-			map.put(occurrence.source, nv);
+		var visitedList = visitedMap.get(addr)
+		if (visitedList != null) {
+			if (!visitedList.contains(vertex.name)) {
+				visitedList.add(vertex.name)
+				if (visitedList.size == graph.verticies.size) {
+					emit(new FourmiFinishedRaceEvent, Scopes.addresses(occurrence.source));
+				}
+			}
 		}
 	}
 
@@ -229,11 +237,10 @@ behavior FourmiliereBehavior extends AcoControllerBehavior {
 			if (s.equals("few")) {
 				desiredAntsCount = mapSize * 1 // - Ants /Vertex
 			} else if (s.equals("alot")) {
-				desiredAntsCount = mapSize * 5 // - Ants / Vertex
+				desiredAntsCount = mapSize * 8 // - Ants / Vertex
 			} else {
-				desiredAntsCount = mapSize * 10 // - Ants / Vertex
+				desiredAntsCount = mapSize * 20 // - Ants / Vertex
 			}
-
 		}
 	}
 
@@ -245,7 +252,7 @@ behavior FourmiliereBehavior extends AcoControllerBehavior {
  */
 behavior TickSyncronizer extends AcoControllerBehavior {
 	
-	uses DefaultContextInteractions, Schedules, Behaviors, Logging
+	uses DefaultContextInteractions, Schedules, Behaviors, Logging 
 	
 	var lastTickEmitted : long = System.currentTimeMillis();
 
@@ -337,7 +344,6 @@ agent Fourmi {
 		setLoggingName("Fourmi") 
 		currentVertex = occurrence.parameters.get(0) as TspVertex
 		params = occurrence.parameters.get(1) as AcoParameters;
-		visitedVertex.add(currentVertex)
 		emit(new AntReadyForWork)
 	}
 
@@ -363,7 +369,7 @@ agent Fourmi {
 		var transitionProbabilities : double[] = newDoubleArrayOfSize(availableEdgesMoves.size);
 		var counter : int = 0;
 		for (e : availableEdgesMoves) {
-			var proba : double = computeProbabily(e);
+			var proba : double = computeNumerator(e);
 			transitionProbabilities.set(counter, proba);
 			allowedYSum += proba;
 			counter++;
@@ -384,12 +390,12 @@ agent Fourmi {
 		var random : double = random.nextDouble * sum;
 		for (e : availableEdgesMoves) {
 			random -= transitionProbabilities.get(counter3);
-			if (random <= 0) {
+			if (random <= 0 && destination == null) {
 				destination = e;
 			}
 			counter3++;
 		}
-		
+		 
 		if (destination != null) {
 			var data : AcoTspEdgeData = destination.data as AcoTspEdgeData;
       		var dampened : Double = 0.001 / totalCost;
@@ -410,7 +416,7 @@ agent Fourmi {
 		emit(evt); 
 	}
 	
-	on FourmiAskDieEvent {
+	on FourmiAskDieEvent [!isDiying] {
 		killMySelf
 	}
 	
@@ -428,22 +434,13 @@ agent Fourmi {
 		}
 	}
 	
-	/*
-	 * (pheromone(row,col) ^ ALPHA) * ((1/distance(row,col)) ^ BETA)
-	 */
-	def computeNumerator(vertex : TspVertex) : Double {
-	      var weight : Double = currentVertex.cost(vertex)
-	      if (weight != 0d) {
-			var alpha : double = Math.pow(weight, params.alpha)
-			var beta : double = Math.pow(1d / weight, params.beta);
-			return (alpha * beta);
+	def computeNumerator(e : Edge<VertexInfo>) : Double {
+		var to = e.to as TspVertex;
+	    var weight : Double = currentVertex.cost(to)
+	    if (weight != 0d) {
+			return (Math.pow(weight, params.alpha) * Math.pow(e.cost / weight, params.beta));
 		}
 		return 0d;
-	}
-	
-	def computeProbabily(e : Edge<VertexInfo>) : Double {
-		var to = e.to as TspVertex;
-		return computeNumerator(to);
 	}
 	
 }
