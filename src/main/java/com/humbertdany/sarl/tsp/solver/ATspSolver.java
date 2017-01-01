@@ -2,14 +2,20 @@ package com.humbertdany.sarl.tsp.solver;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.humbertdany.sarl.tsp.core.graph.Edge;
+import com.humbertdany.sarl.tsp.core.graph.EdgeData;
 import com.humbertdany.sarl.tsp.core.graph.GraphObserver;
 import com.humbertdany.sarl.tsp.core.params.AApplicationParameters;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
+import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
+import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
+import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.List;
 
 abstract public class ATspSolver implements GraphObserver<TspGraph> {
 
@@ -80,5 +86,16 @@ abstract public class ATspSolver implements GraphObserver<TspGraph> {
 			}
 		}
 	}
+	
+	protected final void notifyNewBestPath(final List<TspVertex> flow, final double cost){
+		if(this.solverObservers.size() != 0){
+			for(SolverObserver obs : this.solverObservers){
+				obs.onNewBestPath(flow, cost);
+			}
+		}
+	}
+	
+	public abstract String getColorFor(Edge<VertexInfo> e);
 
+	public abstract TspEdgeData makeEdgeData();
 }

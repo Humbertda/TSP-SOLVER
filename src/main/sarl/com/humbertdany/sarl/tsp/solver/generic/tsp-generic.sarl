@@ -5,18 +5,10 @@ import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener
 import io.sarl.core.Initialize
 import com.humbertdany.sarl.tsp.solver.ASarlSolver
 import io.sarl.core.DefaultContextInteractions
-import io.sarl.core.Lifecycle
-import io.sarl.core.Schedules
-import io.sarl.core.Logging
 import javafx.application.Platform
-import java.util.ArrayList
-
-/**
- * Start the solving 
- * Used as first sent and should loop
- */
-event NewTick {
-}
+import java.util.ArrayList 
+import java.util.List
+import com.humbertdany.sarl.tsp.tspgraph.TspVertex
 
 event StopSolvingEvent {
 }
@@ -29,9 +21,14 @@ event StartSolvingEvent {
 	var graph : TspGraph
 }
 
+event NewBestPath {
+	var flow : List<TspVertex>
+	var cost : double
+}
+
 abstract agent ALauncher {
 
-	uses DefaultContextInteractions, Lifecycle, Schedules
+	uses DefaultContextInteractions
 
 	/** 
 	 * Store all the variables
@@ -59,11 +56,13 @@ abstract agent ALauncher {
 		solver.setEventSpace(defaultSpace);
 		solver.sarlReady();
 	}
+	
+	on NewBestPath {
+		solver.runLater(new NewBestPathRunnable(listeners, occurrence.flow, occurrence.cost)); 
+	}
 
 	on StopSolvingEvent {
-		in(100)[
-			killMe
-		]
+		killMyselfSafe
 	}
 
 	on NewGraphState {
@@ -80,8 +79,11 @@ abstract agent ALauncher {
 			solver.runLater(new JfxInfoRunnable(listeners, graph)); 
 		}
 	}
+	
+	abstract def killMyselfSafe;
 
 }
+
 /** 
  * Runnable used to inform the main Application
  * (running on JavaFX Thread) 
@@ -103,4 +105,24 @@ class JfxInfoRunnable implements Runnable {
 		}
 	}
 
+}
+
+class NewBestPathRunnable implements Runnable {
+
+	var listeners : ArrayList<EnvironmentListener>
+	var flow : List<TspVertex>
+	var cost : double;
+
+	new(listeners : ArrayList<EnvironmentListener>, flow : List<TspVertex>, cost : double) {
+		this.listeners = listeners;
+		this.flow = flow;
+		this.cost = cost; 
+	}
+
+	override run {
+		for (listener : this.listeners) {
+			listener.newBestPath(flow, cost)
+		}
+	}
+	
 }

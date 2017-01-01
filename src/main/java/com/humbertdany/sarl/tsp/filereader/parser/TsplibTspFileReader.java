@@ -5,7 +5,9 @@ import com.humbertdany.sarl.tsp.filereader.parser.tsplib.ATspDataTypeReader;
 import com.humbertdany.sarl.tsp.filereader.parser.tsplib.TspDataTypeReaderAtt;
 import com.humbertdany.sarl.tsp.filereader.parser.tsplib.TspDataTypeReaderEuc2D;
 import com.humbertdany.sarl.tsp.filereader.parser.tsplib.TspDataTypeReaderGeo;
+import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
+import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,4 +94,8 @@ public class TsplibTspFileReader extends ATspProblemReader {
 		}
 	}
 
+	@Override
+	void addEdgeToGraph(TspGraph g, TspVertex from, TspVertex to) {
+		g.addEdge(from, to, null);
+	}
 }

@@ -1,7 +1,5 @@
 package com.humbertdany.sarl.tsp.solver.aco.ui;
 
-import java.util.ArrayList;
-
 import com.humbertdany.sarl.tsp.core.ui.JfxController;
 import com.humbertdany.sarl.tsp.core.ui.MCheckBox;
 import com.humbertdany.sarl.tsp.core.ui.MGridPane;
@@ -12,6 +10,8 @@ import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.Pane;
+
+import java.util.ArrayList;
 
 public class AcoGuiController extends JfxController {
 
@@ -41,14 +41,14 @@ public class AcoGuiController extends JfxController {
 		checkboxTia = new MCheckBox("TIA", getParams().isTia());
 		checkboxMmas = new MCheckBox("MMAS", getParams().isMmas());
 
-		timeMsSlider = new MSlider(AcoParameters.MS_TICKS_MIN_VALUE/1000, 5, getParams().getMsBetweenTick()/1000);
+		timeMsSlider = new MSlider(AcoParameters.MS_TICKS_MIN_VALUE/1000.0, 5, getParams().getMsBetweenTick()/1000);
 		
 		phEvaporation = new MSlider(0, 1, getParams().getPhEvaporation());
 		phInitialLevel = new MSlider(0, 10, getParams().getPhInitialLevel());
 		phMinMaxRatio = new MSlider(0, 1, getParams().getPhMinMaxRatio());
 		
-		alphaSlider = new MSlider(0, 10, getParams().getAlpha());
-		betaSlider = new MSlider(0, 10, getParams().getBeta());
+		alphaSlider = new MSlider(0.0, 1.0, getParams().getAlpha());
+		betaSlider = new MSlider(1.0, 10.0, getParams().getBeta());
 		
 		antNumberChoicebox = new ChoiceBox<String>(FXCollections.observableArrayList(
 		    "Few", "Normal", "Alot")

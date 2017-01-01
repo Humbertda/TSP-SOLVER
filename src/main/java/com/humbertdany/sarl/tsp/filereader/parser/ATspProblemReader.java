@@ -2,7 +2,6 @@ package com.humbertdany.sarl.tsp.filereader.parser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.humbertdany.sarl.tsp.core.helper.DistanceHelper;
-import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
@@ -42,7 +41,15 @@ abstract public class ATspProblemReader implements ITspFileReader {
 			rIndex++;
 		}
 
+		generateGraphWithFullLink(graph, vertices, records);
+		graph.setRootVertex(vertices[0]);
+
+		return graph;
+	}
+	
+	private void generateGraphWithSmartLink(final TspGraph graph, final TspVertex[] vertices, final List<Record> records){
 		List<Elem> temporaryCostArray;
+		int rIndex = 0;
 		for(TspVertex v : vertices){
 			rIndex = 0;
 			int bIndex = 0;
@@ -62,13 +69,22 @@ abstract public class ATspProblemReader implements ITspFileReader {
 			sort.toArray(sorted);
 			for(int i = 0; i < 3; i++){
 				final Elem e = sorted[i];
-				graph.addEdge(v, vertices[e.idInArray], new TspEdgeData());
+				this.addEdgeToGraph(graph, v, vertices[e.idInArray]);
 			}
 		}
-		graph.setRootVertex(vertices[0]);
-
-		return graph;
 	}
+	
+	private void generateGraphWithFullLink(final TspGraph graph, final TspVertex[] vertices, final List<Record> records){
+		for(TspVertex v : vertices){
+			for(TspVertex v2 : vertices){
+				if(v2 != v){
+					this.addEdgeToGraph(graph, v, v2);
+				}
+			}
+		}
+	}
+
+	abstract void addEdgeToGraph(final TspGraph g, final TspVertex from, final TspVertex to);
 
 	/**
 	 * Private util class used to store

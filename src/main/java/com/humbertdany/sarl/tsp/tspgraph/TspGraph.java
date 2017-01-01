@@ -1,15 +1,21 @@
 package com.humbertdany.sarl.tsp.tspgraph;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.humbertdany.sarl.tsp.core.graph.Edge;
 import com.humbertdany.sarl.tsp.core.graph.Graph;
 import com.humbertdany.sarl.tsp.core.graph.Vertex;
+import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.ui.mainui.D3GraphDisplayable;
 
 import java.util.List;
 
 public class TspGraph extends Graph<VertexInfo> implements D3GraphDisplayable {
+
+	public TspGraph(){
+
+	}
 
 	public boolean addAllVertex(List<TspVertex> vertexes){
 		boolean res = true;
@@ -23,7 +29,7 @@ public class TspGraph extends Graph<VertexInfo> implements D3GraphDisplayable {
 	}
 
 	@Override
-	public String getD3String() {
+	public String getD3String(final ATspSolver solver) {
 		ObjectMapper ow = new ObjectMapper();
 		try {
 			int counter;
@@ -45,10 +51,9 @@ public class TspGraph extends Graph<VertexInfo> implements D3GraphDisplayable {
 			sb.append(", \"edges\":[");
 			counter = 0;
 			for(Edge<VertexInfo> et : this.getEdges()){
-				TspJsonEdge e = new TspJsonEdge(et);
+				final TspJsonEdge e = new TspJsonEdge(et, solver);
 				sb.append(ow.writeValueAsString(e));
 				if(counter != this.getEdges().size()-1){
-
 					sb.append(", ");
 				}
 				counter++;
@@ -64,29 +69,35 @@ public class TspGraph extends Graph<VertexInfo> implements D3GraphDisplayable {
 	}
 
 	private static class TspJsonEdge {
+
+		@JsonInclude
 		private TspVertex from;
+
+		@JsonInclude
 		private TspVertex to;
 
-		TspJsonEdge(Edge<VertexInfo> e){
+		@JsonInclude
+		private String rgbaColor;
+
+		TspJsonEdge(Edge<VertexInfo> e, final ATspSolver solver){
 			this.from = (TspVertex) e.getFrom();
 			this.to = (TspVertex) e.getTo();
+			this.rgbaColor = solver.getColorFor(e);
 		}
 
+		@JsonInclude
 		public TspVertex getFrom() {
 			return from;
 		}
 
-		public void setFrom(TspVertex from) {
-			this.from = from;
-		}
-
+		@JsonInclude
 		public TspVertex getTo() {
 			return to;
 		}
 
-		public void setTo(TspVertex to) {
-			this.to = to;
+		@JsonInclude
+		public String getRgbaColor() {
+			return rgbaColor;
 		}
-
 	}
 }

@@ -48,12 +48,11 @@ public class MainUI extends Application {
 		    for(String arg : getParameters().getRaw()){
 			    if(arg.equals(TEST_LAUNCH_ARGS)){
 			    	log("Entering MainUI Test|Dev mode");
-				    controller.enterSolverMode(controller.getTspSolverLibrary().solverAcoSarl);
 				    controller.onWebviewReady(() -> {
 					    try {
 						    final TspProblemReader fr = new TspProblemReader();
 						    controller.newGraphSelected(fr.readFromString(TspCommonLibrary.EASY_CHALLENGE));
-						    controller.openWebviewDebugger();
+						    controller.enterSolverMode(controller.getTspSolverLibrary().solverAcoSarl);
 					    } catch (ParsingException e) {
 						    logError(e.getMessage());
 					    }

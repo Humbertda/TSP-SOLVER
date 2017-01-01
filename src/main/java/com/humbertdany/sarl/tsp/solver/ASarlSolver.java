@@ -6,9 +6,11 @@ import com.humbertdany.sarl.tsp.solver.generic.NewGraphState;
 import com.humbertdany.sarl.tsp.solver.generic.StartSolvingEvent;
 import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
-import io.sarl.lang.core.EventSpace;
-import javafx.application.Platform;
+import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 
+import io.sarl.lang.core.EventSpace;
+
+import java.util.List;
 import java.util.UUID;
 
 abstract public class ASarlSolver extends ATspSolver implements EnvironmentListener {
@@ -48,8 +50,8 @@ abstract public class ASarlSolver extends ATspSolver implements EnvironmentListe
 	@Override
 	final public void startSolving(TspGraph graph) {
 		this.graph = graph;
+		verifyGraph(this.graph);
 		startSarlSolving();
-
 	}
 
 	@Override
@@ -67,20 +69,20 @@ abstract public class ASarlSolver extends ATspSolver implements EnvironmentListe
 			this.defaultLauncherSpace.emit(evt);
 		}
 	}
-
-	@Override
-	final public void stopSolving() {
-		if(getDefaultSpace() != null){
-			getDefaultSpace().emit(new StopSolvingEvent());
-		}
-	}
 	
 	public final void runLater(final Runnable r){
 		this.runner.run(r);
 	}
+	
+	@Override
+	public void newBestPath(List<TspVertex> flow, final double cost) {
+		this.notifyNewBestPath(flow, cost);
+	}
+
 
 	// Abstract methods
 
 	abstract protected void startSarlSolving();
+	abstract protected void verifyGraph(TspGraph graph);
 
 }

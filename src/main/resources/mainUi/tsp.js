@@ -1,14 +1,17 @@
 /**
  * contain the draw API of the project
  */
-;var tspDrawer = (function (d3, _) {
+;var initTspDrawerLibrary = (function (d3, _, logger) {
 	'use strict';
 
 	var width = 600,
 	    height = 600,
 		optimalCitySize = 5,
 	    cities = [],
-		edges = [];
+		edges = [],
+		pathDraw = [];
+	
+	var log = logger.log;
 	
 	var openRightClicEvent = null;
 	
@@ -54,6 +57,7 @@
 	var createPath = function(v){
 		return _.extend({
 			cost: 0,
+			rgbaColor: "blue",
 			from: {
 				vertexInfo: {
 					x: 0.0,
@@ -85,9 +89,9 @@
 	/**
 	 * Draw all the cities from the cities[] var
 	 */
-	function drawCities() {
+	function drawCities(citiesArg) {
 		elementsContainerG.selectAll('circle').remove();
-		_.each(cities, function(city){
+		_.each(citiesArg, function(city){
 			var circle = elementsContainerG.append('circle')
 				.attr('cx', function () { return city.x;})
 				.attr('cy', function () { return city.y; })
@@ -136,10 +140,10 @@
 	/**
 	 * Draw all the path
 	 */
-	function drawPaths() {
+	function drawPaths(pathsArg, interaction, classed) {
 		var thickness = optimalCitySize * .4; //Some number
-		elementsContainerG.selectAll('polygon.connection').remove();
-		_.each(edges, function(edge){
+		elementsContainerG.selectAll('polygon.'+classed).remove();
+		_.each(pathsArg, function(edge){
 			var from = edge['from'];
 			var to = edge['to'];
 			
@@ -150,14 +154,16 @@
 				strPoints += p.x+","+p.y+' ';
 			});
 			
-			elementsContainerG.append("polygon")
-				.attr("fill", "blue")
+			pathDraw.push(elementsContainerG.append("polygon")
+				.attr("fill", edge["rgbaColor"])
 				.attr("points", strPoints)
-				.attr("class", "connection")
+				.attr("class", classed)
 				.on('contextmenu', function(){
-					selectedPath = edge;
-					$(cmRemoveLink).show();
-				});
+					if(interaction){
+						selectedPath = edge;
+						$(cmRemoveLink).show();
+					}
+				}));
 		});
 	}
 	
@@ -321,7 +327,9 @@
 		var json = JSON.parse(newState);
 		var rawCities = json['cities'];
 		var rawEdges = json['edges'];
+		pathDraw = [];
 		cities = [];
+		edges = [];
 		var maxX = -100000000;
 		var maxY = -100000000;
 		var minX =  100000000;
@@ -342,11 +350,11 @@
 				minY = nCity.y;
 			}
 		});
-		edges = [];
 		_.each(rawEdges, function(rawEdge){
 			edges.push(createPath({
 				from: createCityFromJava(rawEdge['from']),
-				to: createCityFromJava(rawEdge['to'])
+				to: createCityFromJava(rawEdge['to']),
+				rgbaColor: rawEdge["rgbaColor"]
 			}));
 		});
 		width = (maxX-minX);
@@ -355,13 +363,48 @@
 		svg.attr("viewBox", 0 + " " + 0 + " " + width + " " + height);
 		elementsContainerG.attr("transform", "translate(" + -minX + "," + -minY + ")");
 		//TODO find a solution to prevent pan out : zoom.translateExtent([[0, 0], [0, 0]]);
-		drawPaths();
-		drawCities();
+		drawPaths(edges, true, "connection");
+		drawCities(cities);
 	}
 	
+	var newStateReceived = function(newState){
+		var json = JSON.parse(newState);
+		_.each(json['edges'], function(newEdge, i){
+			var oldEdge = edges[i];
+			if(oldEdge['from']['name'] == newEdge['from']['name'] && oldEdge['to']['name'] == newEdge['to']['name']){
+				pathDraw[i].attr("fill", newEdge["rgbaColor"]);
+			}
+		});
+	};
+
+	var newBestPath = function(newBestPath){
+		var json = JSON.parse(newBestPath);
+		var pathes = [];
+		var createdCities = [];
+		_.each(json, function(rawVertex, i){
+			createdCities.push(createCityFromJava(rawVertex, i));
+		});
+		_.each(createdCities, function(vertex, i, list){
+			var from = vertex;
+			var to;
+			if(i == list.length-1){
+				to = list[0];
+			} else {
+				to = list[i+1]
+			}
+			pathes.push(createPath({
+				from: from,
+				to: to,
+				rgbaColor: "red"
+			}))
+		});
+		drawPaths(pathes, false, "bestpath")
+	};
 	
 	return {
 		init: init,
-		onModification: onModification
+		newState: newStateReceived,
+		onModification: onModification,
+		newBestPath: newBestPath
 	}
-})(d3, _);
+});
