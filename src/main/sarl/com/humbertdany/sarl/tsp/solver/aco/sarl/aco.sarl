@@ -33,7 +33,7 @@ event NewTick {
 }
 
 event AntDiedEvent {
-	
+	 
 }
 
 event NewTspProblemParameters {
@@ -216,15 +216,11 @@ behavior FourmiliereBehavior extends AcoControllerBehavior {
 	}
 
 	on NewGraphState {
-		killAllAnts
+		killAllAnts 
 	}
 
 	def killAllAnts {
 		emit(new FourmiAskDieEvent)
-	}
-	
-	on StopSolvingEvent {
-		killAllAnts
 	}
 	
 	/** 
@@ -424,7 +420,8 @@ agent Fourmi {
 	def killMySelf {
 		isDiying = true;
 		emit(new AntDiedEvent);
-		in(3000) [
+		// TODO :: Sometimes she can't die, which cause Janus to stay alive
+		in(5000) [
 			killMe
 		]
 	}
@@ -443,6 +440,10 @@ agent Fourmi {
 		}
 		return 0d;
 	}
+
+	on StopSolvingEvent {
+		killMySelf
+	}
 	
 }
 
@@ -452,11 +453,12 @@ agent Fourmi {
  */
 agent Launcher extends ALauncher {
 	
-	uses DefaultContextInteractions, Behaviors, Logging, Schedules
+	uses DefaultContextInteractions, Behaviors, Logging, Schedules, Lifecycle
 	
 	var fourmiliereBehavior : FourmiliereBehavior;
 	var solutionObserverBehavior : SolutionObserverBehavior;
 	var ticksSync : TickSyncronizer;
+	var isDiying : boolean = false;
 	
 	on Initialize {
 		solver = occurrence.parameters.get(0) as AntColonyTspSolver;
@@ -477,7 +479,7 @@ agent Launcher extends ALauncher {
 		setLoggingName("Launcher")
 	}
 
-	on ProcessControllerEvent {
+	on ProcessControllerEvent[!isDiying] {
 		in(200) [ // It loop on himself to handle
 			wake(new ProcessControllerEvent);
 		]
@@ -485,6 +487,13 @@ agent Launcher extends ALauncher {
 
 	on NewTick {
 		fireNewState
+	}
+	
+	override killMyselfSafe {
+		isDiying = true; 
+		in(10000)[
+			killMe
+		]
 	}
 	
 }

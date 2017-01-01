@@ -10,6 +10,7 @@ import com.humbertdany.sarl.tsp.solver.aco.sarl.Launcher;
 import com.humbertdany.sarl.tsp.solver.aco.sarl.NewTspProblemParameters;
 import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
 import com.humbertdany.sarl.tsp.solver.aco.utils.AcoTspEdgeData;
+import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent;
 import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
@@ -89,6 +90,13 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 			);
 		} catch (Exception e) {
 			System.exit(-1);
+		}
+	}
+
+	@Override
+	final public void stopSolving() {
+		if(getDefaultSpace() != null){
+			getDefaultSpace().emit(new StopSolvingEvent());
 		}
 	}
 

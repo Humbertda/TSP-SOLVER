@@ -5,11 +5,8 @@ import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener
 import io.sarl.core.Initialize
 import com.humbertdany.sarl.tsp.solver.ASarlSolver
 import io.sarl.core.DefaultContextInteractions
-import io.sarl.core.Lifecycle
-import io.sarl.core.Schedules
-import io.sarl.core.Logging
 import javafx.application.Platform
-import java.util.ArrayList
+import java.util.ArrayList 
 import java.util.List
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex
 
@@ -31,7 +28,7 @@ event NewBestPath {
 
 abstract agent ALauncher {
 
-	uses DefaultContextInteractions, Lifecycle, Schedules
+	uses DefaultContextInteractions
 
 	/** 
 	 * Store all the variables
@@ -65,9 +62,7 @@ abstract agent ALauncher {
 	}
 
 	on StopSolvingEvent {
-		in(100)[
-			killMe
-		]
+		killMyselfSafe
 	}
 
 	on NewGraphState {
@@ -84,6 +79,8 @@ abstract agent ALauncher {
 			solver.runLater(new JfxInfoRunnable(listeners, graph)); 
 		}
 	}
+	
+	abstract def killMyselfSafe;
 
 }
 

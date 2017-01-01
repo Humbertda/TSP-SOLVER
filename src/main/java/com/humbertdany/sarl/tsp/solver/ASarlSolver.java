@@ -69,13 +69,6 @@ abstract public class ASarlSolver extends ATspSolver implements EnvironmentListe
 			this.defaultLauncherSpace.emit(evt);
 		}
 	}
-
-	@Override
-	final public void stopSolving() {
-		if(getDefaultSpace() != null){
-			getDefaultSpace().emit(new StopSolvingEvent());
-		}
-	}
 	
 	public final void runLater(final Runnable r){
 		this.runner.run(r);

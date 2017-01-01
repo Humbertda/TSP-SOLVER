@@ -24,6 +24,7 @@ import javafx.concurrent.Worker.State;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -48,6 +49,8 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	private Button backSolverBtn;
 	@FXML
 	public Button startStopBtn;
+	@FXML
+	private Label statusLabel;
 
 	private ATspSolver solver;
 
@@ -372,8 +375,8 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	
 	@Override
 	public void onNewBestPath(List<TspVertex> flow, final double cost){
+		statusLabel.setText("Best run so far: " + cost);
 		jsApp.newBestPath(flow);
-		// TODO do something with the cost, maybe display it on a frame ! 
 	}
 
 	public void openWebviewDebugger(){

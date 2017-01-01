@@ -30,6 +30,7 @@ public class SarlTspSolveTest extends ATest {
 			@Override
 			public void onNewBestPath(List<TspVertex> flow, double cost) {
 				log("New best cost " + cost); 
+				solver.stopSolving();
 			}
 		});
 		solver.startSolving(graph);
