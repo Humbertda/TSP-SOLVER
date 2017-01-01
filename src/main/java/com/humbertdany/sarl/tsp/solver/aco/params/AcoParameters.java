@@ -13,7 +13,7 @@ public class AcoParameters extends AApplicationParameters {
 	 */
 	private static final long serialVersionUID = -3291340246882818235L;
 	
-	public static final int MS_TICKS_MIN_VALUE = 1000;
+	public static final int MS_TICKS_MIN_VALUE = 500;
 
 	private Boolean isTia = false;
 	private Boolean isMmas = false;

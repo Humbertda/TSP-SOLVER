@@ -11,13 +11,6 @@ import io.sarl.core.Logging
 import javafx.application.Platform
 import java.util.ArrayList
 
-/**
- * Start the solving 
- * Used as first sent and should loop
- */
-event NewTick {
-}
-
 event StopSolvingEvent {
 }
 

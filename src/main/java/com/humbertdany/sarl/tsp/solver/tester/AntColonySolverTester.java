@@ -48,7 +48,7 @@ public class AntColonySolverTester extends ATspSolver {
 
 	@Override
 	public String getColorFor(Edge<VertexInfo> e) {
-		return "blue";
+		return "rgba(0, 0, 0, 0)";
 	}
 
 	@Override

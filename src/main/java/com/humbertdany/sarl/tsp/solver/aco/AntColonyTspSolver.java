@@ -67,11 +67,11 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 	public String getColorFor(Edge<VertexInfo> e) {
 		if(e.getData() instanceof AcoTspEdgeData){
 			final AcoTspEdgeData data = (AcoTspEdgeData) e.getData();
-			final Double pheromoneLevel = data.getPheromoneLevel(); // TODO real color
-			log(pheromoneLevel);
+			final Double pheromoneLevel = data.getPheromoneLevel(); 
+			// TODO real color : log(pheromoneLevel);
 			return "yellow";
 		} else {
-			return "red"; // should not happen
+			return "rgba(0, 0, 0, 0)"; // should not happen
 		}
 	}
 
