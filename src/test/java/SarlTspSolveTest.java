@@ -13,11 +13,11 @@ public class SarlTspSolveTest extends ATest {
 
 	public static void main(String[] args){
 		AcoParameters testParams = AcoParameters.buildDefault();
-		testParams.setMsBetweenTick(500);
+		testParams.setMsBetweenTick(0);
 		AntColonyTspSolver solver = new AntColonyTspSolver(runnable -> {
 			runnable.run();
 		}, testParams);
-		TspGraph graph = TsplibListItem.fromTspProblem(new TspProblem("Sarl Aco Test", TspCommonLibrary.EASY_CHALLENGE)).generateGraph();
+		TspGraph graph = TsplibListItem.fromTspProblem(new TspProblem("Sarl Aco Test", TspCommonLibrary.BERLIN_52)).generateGraph();
 		solver.onSolverDone(new SolverObserver(){
 			@Override
 			public void onTspProblemSolved() {
@@ -29,8 +29,7 @@ public class SarlTspSolveTest extends ATest {
 			}
 			@Override
 			public void onNewBestPath(List<TspVertex> flow, double cost) {
-				log("New best cost " + cost); 
-				solver.stopSolving();
+				// log("New best cost " + cost); 
 			}
 		});
 		solver.startSolving(graph);

@@ -78,6 +78,8 @@ abstract public class ATspProblemReader implements ITspFileReader {
 		for(TspVertex v : vertices){
 			for(TspVertex v2 : vertices){
 				if(v2 != v){
+					// Calculating most of the distance in advance
+					DistanceHelper.calculateEuclideanDistance(v.getData().getX(), v.getData().getY(), v2.getData().getX(), v2.getData().getY());
 					this.addEdgeToGraph(graph, v, v2);
 				}
 			}
