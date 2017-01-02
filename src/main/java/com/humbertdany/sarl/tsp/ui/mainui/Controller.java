@@ -10,7 +10,6 @@ import com.humbertdany.sarl.tsp.solver.ATspSolver;
 import com.humbertdany.sarl.tsp.solver.SolverObserver;
 import com.humbertdany.sarl.tsp.solver.TspSolverLibrary;
 import com.humbertdany.sarl.tsp.solver.tester.AntColonySolverTester;
-import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
@@ -365,7 +364,7 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 
 	@Override
 	public void onNewGraphState(TspGraph g) {
-		jsApp.updateMap(g);
+		//jsApp.updateMap(g);
 	}
 
 	@Override

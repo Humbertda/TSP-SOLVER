@@ -13,8 +13,7 @@ import com.humbertdany.sarl.tsp.solver.generic.NewGraphState
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex
 import java.util.List
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.ArrayList 
 import io.sarl.lang.core.Address
 import io.sarl.util.Scopes 
 import com.humbertdany.sarl.tsp.core.graph.Edge
@@ -23,6 +22,8 @@ import java.util.Random
 import com.humbertdany.sarl.tsp.solver.aco.utils.AcoTspEdgeData
 import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent
 import com.humbertdany.sarl.tsp.solver.generic.NewBestPath
+import java.util.concurrent.ConcurrentHashMap
+import org.apache.commons.math3.util.FastMath
 
 /**
  * Start the solving 
@@ -85,6 +86,13 @@ abstract behavior AcoControllerBehavior {
 	
 	var ready : boolean = false;
 	
+	/**
+	 * Store if the behavior is in testing mode, or not.
+	 * This will generally be used to trigger logging
+	 * TODO Find a proper way to trigger testing, maybe event?
+	 */
+	 var testing : boolean = false;
+	
 	/** 
 	 * Store the parameters available 
 	 * for the solver
@@ -119,15 +127,15 @@ abstract behavior AcoControllerBehavior {
  */
 behavior SolutionObserverBehavior extends AcoControllerBehavior {
 
-	uses DefaultContextInteractions, Logging
+	uses DefaultContextInteractions, Logging, Schedules
 	
-	var visitedMap : HashMap<Address, List<String>> = new HashMap();
+	var visitedMap : ConcurrentHashMap<Address, List<String>> = new ConcurrentHashMap();
 	
 	var bestCostSoFar : Double = -1.0; // Impossible cost at the beginning
 	var bestWaySoFar : List<TspVertex> = new ArrayList();
 
 	on NewGraphState {
-		visitedMap = new HashMap();
+		visitedMap = new ConcurrentHashMap();
 		bestCostSoFar = -1.0;
 		bestWaySoFar = new ArrayList();
 	}
@@ -167,6 +175,9 @@ behavior SolutionObserverBehavior extends AcoControllerBehavior {
 				visitedList.add(vertex.name)
 				if (visitedList.size == graph.verticies.size) {
 					emit(new FourmiFinishedRaceEvent, Scopes.addresses(occurrence.source));
+					in(100)[
+						visitedMap.remove(occurrence.source)
+					]
 				}
 			}
 		}
@@ -175,25 +186,38 @@ behavior SolutionObserverBehavior extends AcoControllerBehavior {
 	override protected defineFourmiliereParams {
 		// Nothing has to be done for the observer, already up to date
 	}
+	
+	// TESTS
+	var tickCounted : int = 0;
+
+	on NewTick [testing] {
+		tickCounted++
+		var sb = new StringBuilder
+		sb.append("\n").append("\nTick n° ").append(tickCounted).append(", \napproximative ants number = ").append(
+			visitedMap.size).append("\ncurrent best cost = ").append(bestCostSoFar).append("\n");
+		info(sb.toString);
+	}
 
 }
-
 /**
  * The Agent that register this behavior 
  * will handle the Fourmiliere, and so the solving process
  */
 behavior FourmiliereBehavior extends AcoControllerBehavior {
 
-	uses DefaultContextInteractions
+	uses DefaultContextInteractions, Logging
 	
 	var antsCount : int = 0;
 	var desiredAntsCount : int = 0;
+
+	var isProcessing : boolean = false;
 
 	/**
 	 * Here we are checking the number of ants and if we need to kill some
 	 * or to spawn some
 	 */
-	on ProcessControllerEvent [isFromMe(occurrence) && ready] {
+	on ProcessControllerEvent [isFromMe(occurrence) && ready && !isProcessing] {
+		isProcessing = true;
 		if (antsCount != desiredAntsCount) {
 			// Not enough fourmi, spawning some to get the count
 			if (antsCount < desiredAntsCount) {
@@ -204,6 +228,7 @@ behavior FourmiliereBehavior extends AcoControllerBehavior {
 				killAllAnts
 			}
 		}
+		isProcessing = false;
 	}
 
 	def spawnAnt {
@@ -228,15 +253,23 @@ behavior FourmiliereBehavior extends AcoControllerBehavior {
 	 */
 	override protected defineFourmiliereParams {
 		if (ready) {
-			// Check Number of ants
 			var mapSize = graph.verticies.size;
 			var s = params.antsNumber.toLowerCase;
 			if (s.equals("few")) {
-				desiredAntsCount = mapSize * 1 // - Ants /Vertex
+				desiredAntsCount = mapSize * 5 // - Ants /Vertex
 			} else if (s.equals("alot")) {
-				desiredAntsCount = mapSize * 8 // - Ants / Vertex
+				desiredAntsCount = mapSize * 50 // - Ants / Vertex
 			} else {
-				desiredAntsCount = mapSize * 20 // - Ants / Vertex
+				desiredAntsCount = mapSize * 10 // - Ants / Vertex
+			}
+			// TODO params checker ant number faked
+			// Performance problem, maybe linked to multi agent threading killing my PC?
+			// Tested the same solver in full Java with Thread Poll, not performance issue?
+			if (desiredAntsCount < 30) {
+				desiredAntsCount = 30;
+			} 
+			if (desiredAntsCount > 1000) {
+				desiredAntsCount = 1000;
 			}
 		}
 	}
@@ -259,9 +292,9 @@ behavior TickSyncronizer extends AcoControllerBehavior {
 	 * Store TRUE if the Ant has done working,
 	 * FALSE otherwise
 	 */
-	var workersMap : HashMap<Address, Boolean> = new HashMap();
+	var workersMap : ConcurrentHashMap<Address, Boolean> = new ConcurrentHashMap();
 
-	on ProcessControllerEvent [isFromMe(occurrence) && !isProcessing && ready] {
+	on ProcessControllerEvent [isFromMe(occurrence) && !isProcessing && ready && workersMap != null] {
 		isProcessing = true;
 		var allDone = true;
 		for (e : workersMap.values) {
@@ -318,7 +351,7 @@ behavior TickSyncronizer extends AcoControllerBehavior {
  */
 agent Fourmi {
 	
-	uses Logging, Schedules, Lifecycle, DefaultContextInteractions
+	uses Logging, Schedules, Lifecycle, DefaultContextInteractions, Behaviors
 	
 	var currentVertex : TspVertex;
 	
@@ -329,6 +362,8 @@ agent Fourmi {
 	var totalCost : Double = 0.0;
 	
 	var isDiying : boolean = false;
+	
+	var isProcessing : boolean = false; 
 	
 	/** 
 	 * Store the parameters available 
@@ -349,53 +384,11 @@ agent Fourmi {
 	 * But she inform the Colony when she is done working
 	 */
 	on NewTick [!this.isFromMe(occurrence) && !isDiying] {
-		
-		var destination : Edge<VertexInfo>;
-		
-		// Get the available Ant moves
-		var availableEdgesMoves : List<Edge<VertexInfo>> = new ArrayList(); 
-		for (edge : currentVertex.outgoingEdges) { 
-			if (!(edge.to.name.equals(currentVertex.name))) {
-				availableEdgesMoves.add(edge)
-			} 
-		}
-		
-		// Find the best move TODO :: Something does not work somewhere here...
-		// Calculate all the probabilities
-		var allowedYSum : double  = 0d;
-		var transitionProbabilities : double[] = newDoubleArrayOfSize(availableEdgesMoves.size);
-		var counter : int = 0;
-		for (e : availableEdgesMoves) {
-			var proba : double = computeNumerator(e);
-			transitionProbabilities.set(counter, proba);
-			allowedYSum += proba;
-			counter++;
-		}
-		
-		// Add the sub
-		var counter2 : int = 0;
-		var sum : double  = 0d;
-		for (e : availableEdgesMoves) {
-	        var weighted : double = transitionProbabilities.get(counter2) / allowedYSum;
-	        transitionProbabilities.set(counter2, weighted);
-	        sum += weighted;
-			counter2++;
-		}
-		
-		// Select the move
-		var counter3 : int = 0;
-		var random : double = random.nextDouble * sum;
-		for (e : availableEdgesMoves) {
-			random -= transitionProbabilities.get(counter3);
-			if (random <= 0 && destination == null) {
-				destination = e;
-			}
-			counter3++;
-		}
-		 
+		isProcessing = true;
+		var destination = getBestMove
 		if (destination != null) {
 			var data : AcoTspEdgeData = destination.data as AcoTspEdgeData;
-      		var dampened : Double = 0.001 / totalCost;
+      		var dampened : Double = 0.004 / totalCost;
 			data.adjustWeight(dampened, params.phEvaporation);
 			currentVertex = destination.to as TspVertex;
 			visitedVertex.add(currentVertex)
@@ -404,44 +397,108 @@ agent Fourmi {
 		} else {
 			killMySelf 		// She is buggy
 		}
+		isProcessing = false
 	}
 	
-	on FourmiFinishedRaceEvent {
+	/**
+	 * Get the best move possible 
+	 * for the current Ant
+	 */
+	def getBestMove : Edge<VertexInfo> {
+		
+		// Get the available Ant moves
+		var availableEdgesMoves : List<Edge<VertexInfo>> = new ArrayList();
+		for (edge : currentVertex.outgoingEdges) {
+			if (!(edge.to.name.equals(currentVertex.name)) && !visitedVertex.contains(edge.to)) {
+				availableEdgesMoves.add(edge)
+			}
+		}
+
+		// Calculate all the probabilities
+		var allowedYSum : double = 0d;
+		var transitionProbabilities : double[] = newDoubleArrayOfSize(availableEdgesMoves.size);
+		var counter : int = 0;
+		for (e : availableEdgesMoves) {
+			var proba : double = computeNumerator(e);
+			transitionProbabilities.set(counter, proba);
+			allowedYSum += proba;
+			counter++;
+		}
+
+		if (allowedYSum == 0d) {
+			return null;
+		}
+
+		// Add the sub
+		var counter2 : int = 0;
+		var sum : double = 0d;
+		for (e : availableEdgesMoves) {
+			var weighted : double = transitionProbabilities.get(counter2) / allowedYSum;
+			transitionProbabilities.set(counter2, weighted);
+			sum += weighted;
+			counter2++;
+		}
+
+		// Select the move
+		var counter3 : int = 0;
+		var random : double = random.nextDouble * sum;
+		for (e : availableEdgesMoves) {
+			random -= transitionProbabilities.get(counter3);
+			if (random <= 0) {
+				return e;
+			}
+			counter3++;
+		}
+		return null;
+	}
+
+	def computeNumerator(e : Edge<VertexInfo>) : Double {
+		var to = e.to as TspVertex;
+		var weight : Double = currentVertex.cost(to)
+		if (weight != 0d) {
+			return (FastMath.pow(weight, params.alpha) * FastMath.pow(1d / weight, params.beta));
+		}
+		return 0d;
+	}
+	
+	on FourmiFinishedRaceEvent [!isDiying] {
 		var evt : FourmiFinishedWorking = new FourmiFinishedWorking();
 		evt.flow = this.visitedVertex;
 		evt.totalCost = totalCost;
-		emit(evt); 
+		emit(evt);
+		killMySelf
 	}
 	
-	on FourmiAskDieEvent [!isDiying] {
+	on FourmiAskDieEvent [!isDiying && !isFromMe] {
 		killMySelf
 	}
 	
 	def killMySelf {
-		isDiying = true;
-		emit(new AntDiedEvent);
-		// TODO :: Sometimes she can't die, which cause Janus to stay alive
-		in(5000) [
-			killMe
-		]
+		wake(new FourmiAskDieEvent)
+	}
+	
+	on FourmiAskDieEvent [isFromMe] {
+		if (isProcessing) {
+			in(200) [
+				wake(new FourmiAskDieEvent)
+			]
+		}
+		else {
+			isDiying = true;
+			emit(new AntDiedEvent);
+			in(1000)[
+				killMe
+			]
+		}
 	}
 
-	on NewTspProblemParameters {
+	on NewTspProblemParameters [!isDiying] {
 		if (occurrence.params != null) {
 			params = occurrence.params;
 		}
 	}
-	
-	def computeNumerator(e : Edge<VertexInfo>) : Double {
-		var to = e.to as TspVertex;
-	    var weight : Double = currentVertex.cost(to)
-	    if (weight != 0d) {
-			return (Math.pow(weight, params.alpha) * Math.pow(e.cost / weight, params.beta));
-		}
-		return 0d;
-	}
 
-	on StopSolvingEvent {
+	on StopSolvingEvent [!isDiying] {
 		killMySelf
 	}
 	
@@ -480,8 +537,8 @@ agent Launcher extends ALauncher {
 	}
 
 	on ProcessControllerEvent[!isDiying] {
-		in(200) [ // It loop on himself to handle
-			wake(new ProcessControllerEvent);
+		in(50) [ // It loop on himself to handle
+			wake(new ProcessControllerEvent); 
 		]
 	}
 

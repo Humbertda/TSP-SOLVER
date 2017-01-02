@@ -65,6 +65,14 @@
             <artifactId>io.janusproject.kernel</artifactId>
             <version>${janusproject.version}</version>
         </dependency>
+        
+        <!-- For Fast Math -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-math3</artifactId>
+		    <version>3.0</version>
+		</dependency>
+        
 
     </dependencies>
 
