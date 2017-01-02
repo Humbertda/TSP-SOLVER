@@ -362,19 +362,23 @@
 		optimalCitySize = (width+height)/2*.01;
 		svg.attr("viewBox", 0 + " " + 0 + " " + width + " " + height);
 		elementsContainerG.attr("transform", "translate(" + -minX + "," + -minY + ")");
+		//svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
 		//TODO find a solution to prevent pan out : zoom.translateExtent([[0, 0], [0, 0]]);
-		drawPaths(edges, true, "connection");
+		// Clear solution if exist
+		elementsContainerG.selectAll('polygon.bestpath').remove();
+		// TODO Find a way to prevent lags input with all those polygon drawPaths(edges, true, "connection");
 		drawCities(cities);
 	}
 	
 	var newStateReceived = function(newState){
-		var json = JSON.parse(newState);
-		_.each(json['edges'], function(newEdge, i){
-			var oldEdge = edges[i];
-			if(oldEdge['from']['name'] == newEdge['from']['name'] && oldEdge['to']['name'] == newEdge['to']['name']){
-				pathDraw[i].attr("fill", newEdge["rgbaColor"]);
-			}
-		});
+		// TODO Find a way to prevent lags input with all those polygon drawPaths(edges, true, "connection");
+		//var json = JSON.parse(newState);
+		//_.each(json['edges'], function(newEdge, i){
+		//	var oldEdge = edges[i];
+		//	if(oldEdge['from']['name'] == newEdge['from']['name'] && oldEdge['to']['name'] == newEdge['to']['name']){
+		//		pathDraw[i].attr("fill", newEdge["rgbaColor"]);
+		//	}
+		//});
 	};
 
 	var newBestPath = function(newBestPath){

@@ -9,7 +9,7 @@ import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters
 import io.sarl.core.Schedules
 import io.sarl.core.Behaviors
 import com.humbertdany.sarl.tsp.solver.generic.ALauncher
-import com.humbertdany.sarl.tsp.solver.generic.NewGraphState
+import com.humbertdany.sarl.tsp.solver.generic.NewGraphState 
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex
 import java.util.List
@@ -24,6 +24,7 @@ import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent
 import com.humbertdany.sarl.tsp.solver.generic.NewBestPath
 import java.util.concurrent.ConcurrentHashMap
 import org.apache.commons.math3.util.FastMath
+import com.humbertdany.sarl.tsp.solver.aco.listener.SarlAcoListener
 
 /**
  * Start the solving 
@@ -33,13 +34,17 @@ event NewTick {
 	var i : int = 0; 
 }
 
+event TriggerTestingEvent {
+	var isTesting : boolean;
+}
+
 event AntDiedEvent {
 	 
 }
 
 event NewTspProblemParameters {
-	var params : AcoParameters
-}
+	var params : AcoParameters 
+} 
 
 event FourmiFinishedWorking {
 	var totalCost : double;
@@ -74,6 +79,10 @@ event ProcessControllerEvent {
 	 
 }
 
+event SarlAcoProcessUpdate {
+	var obs : SarlAcoListener
+}
+
 /**
  * Handling all the stuff about getting parameters 
  */
@@ -85,13 +94,11 @@ abstract behavior AcoControllerBehavior {
 	var graph : TspGraph = null;
 	
 	var ready : boolean = false;
-	
-	/**
+	/** 
 	 * Store if the behavior is in testing mode, or not.
 	 * This will generally be used to trigger logging
-	 * TODO Find a proper way to trigger testing, maybe event?
 	 */
-	 var testing : boolean = false;
+	var testing : boolean = false;
 	
 	/** 
 	 * Store the parameters available 
@@ -114,6 +121,10 @@ abstract behavior AcoControllerBehavior {
 			ready = graph != null && params != null
 			defineFourmiliereParams
 		}
+	}
+	
+	on TriggerTestingEvent {
+		testing = occurrence.isTesting
 	}
 	
 	abstract def defineFourmiliereParams;
@@ -186,7 +197,7 @@ behavior SolutionObserverBehavior extends AcoControllerBehavior {
 	override protected defineFourmiliereParams {
 		// Nothing has to be done for the observer, already up to date
 	}
-	
+
 	// TESTS
 	var tickCounted : int = 0;
 
@@ -199,13 +210,14 @@ behavior SolutionObserverBehavior extends AcoControllerBehavior {
 	}
 
 }
+
 /**
  * The Agent that register this behavior 
  * will handle the Fourmiliere, and so the solving process
  */
 behavior FourmiliereBehavior extends AcoControllerBehavior {
 
-	uses DefaultContextInteractions, Logging
+	uses DefaultContextInteractions
 	
 	var antsCount : int = 0;
 	var desiredAntsCount : int = 0;
@@ -262,14 +274,16 @@ behavior FourmiliereBehavior extends AcoControllerBehavior {
 			} else {
 				desiredAntsCount = mapSize * 10 // - Ants / Vertex
 			}
-			// TODO params checker ant number faked
-			// Performance problem, maybe linked to multi agent threading killing my PC?
-			// Tested the same solver in full Java with Thread Poll, not performance issue?
 			if (desiredAntsCount < 30) {
 				desiredAntsCount = 30;
 			} 
-			if (desiredAntsCount > 1000) {
-				desiredAntsCount = 1000;
+			// TODO params checker ant number faked
+			// Performance problem, maybe linked to multi agent threading killing my PC?
+			// Tested the same solver in full Java with Thread Poll, not performance issue?
+			// Maybe the approach 1 Agent = 1 Ant is not the best option? Can Janus handle 100k agents?
+			// Dev on intel i5, 150 Ant is the max that I could handle without getting lags
+			if (desiredAntsCount > 150) {
+				desiredAntsCount = 150;
 			}
 		}
 	}
@@ -282,7 +296,7 @@ behavior FourmiliereBehavior extends AcoControllerBehavior {
  */
 behavior TickSyncronizer extends AcoControllerBehavior {
 	
-	uses DefaultContextInteractions, Schedules, Behaviors, Logging 
+	uses DefaultContextInteractions, Schedules
 	
 	var lastTickEmitted : long = System.currentTimeMillis();
 
@@ -365,6 +379,8 @@ agent Fourmi {
 	
 	var isProcessing : boolean = false; 
 	
+	var freeToDie : boolean = true;
+	
 	/** 
 	 * Store the parameters available 
 	 * for the solver
@@ -403,6 +419,7 @@ agent Fourmi {
 	/**
 	 * Get the best move possible 
 	 * for the current Ant
+	 * TODO This method does not work perfectly 
 	 */
 	def getBestMove : Edge<VertexInfo> {
 		
@@ -474,19 +491,31 @@ agent Fourmi {
 	}
 	
 	def killMySelf {
-		wake(new FourmiAskDieEvent)
+		if (!isDiying) {
+			wake(new FourmiAskDieEvent)
+		}
 	}
 	
-	on FourmiAskDieEvent [isFromMe] {
+	/**
+	 * Called when wake(new FourmiAskDieEvent)
+	 * it will take care of the ant safe suicide
+	 * to prevent agent to stay alive
+	 * TODO Sometime she can't die, because she is processing? 
+	 */
+	on FourmiAskDieEvent [isFromMe && !isDiying && freeToDie] {
+		freeToDie = false;
 		if (isProcessing) {
-			in(200) [
-				wake(new FourmiAskDieEvent)
+			in(1000) [
+				freeToDie = true;
+				if (!isDiying) {
+					wake(new FourmiAskDieEvent)
+				}
 			]
 		}
 		else {
 			isDiying = true;
 			emit(new AntDiedEvent);
-			in(1000)[
+			in(10000)[
 				killMe
 			]
 		}
@@ -517,8 +546,27 @@ agent Launcher extends ALauncher {
 	var ticksSync : TickSyncronizer;
 	var isDiying : boolean = false;
 	
+	/** 
+	 * Store all the variables
+	 * that will require to be triggered
+	 * on the new states (the solver, etc.)
+	 * ! These should only be Java object
+	 * if a SARL require it, use the Events
+	 * to benefit of parallelism 
+	 */
+	var acoListeners = <SarlAcoListener>newArrayList
+	
+	/** 
+	 * Store if the behavior is in testing mode, or not.
+	 * This will generally be used to trigger logging
+	 */
+	var testing : boolean = false;
+	
+	var tickNumber : int = 0;
+
 	on Initialize {
 		solver = occurrence.parameters.get(0) as AntColonyTspSolver;
+		testing = occurrence.parameters.get(1) as Boolean;
 		
 		// Register Both ACO Behavior
 		fourmiliereBehavior = new FourmiliereBehavior(this)
@@ -530,10 +578,22 @@ agent Launcher extends ALauncher {
 		ticksSync = new TickSyncronizer(this)
 		registerBehavior(ticksSync);
 		
+		var testEvt = new TriggerTestingEvent
+		testEvt.isTesting = testing
+		wake(testEvt)
 		emit(new NewTspProblemParameters => [params = solver.parameters as AcoParameters]);
 		wake(new InternalBehaviorInitialize)
 		wake(new ProcessControllerEvent)
 		setLoggingName("Launcher")
+	}
+	
+	on SarlAcoProcessUpdate {
+		acoListeners.add(occurrence.obs); 
+	}
+
+	on NewTick [isFromMe] {
+		tickNumber++;
+		solver.runLater(new NewTickSentRunnable(acoListeners, tickNumber)); 
 	}
 
 	on ProcessControllerEvent[!isDiying] {
@@ -551,6 +611,24 @@ agent Launcher extends ALauncher {
 		in(10000)[
 			killMe
 		]
+	}
+
+}
+
+class NewTickSentRunnable implements Runnable {
+
+	var listeners : ArrayList<SarlAcoListener>
+	var tickNumber : int
+
+	new(listeners : ArrayList<SarlAcoListener>, tickNumber : int) {
+		this.listeners = listeners;
+		this.tickNumber = tickNumber; 
+	}
+
+	override run {
+		for (listener : this.listeners) {
+			listener.onNewTick(tickNumber) 
+		}
 	}
 	
 }

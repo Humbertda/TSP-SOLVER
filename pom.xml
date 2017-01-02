@@ -7,16 +7,36 @@
     <groupId>com.humbertdany.utbm</groupId>
     <artifactId>SARL-TSP-ACO</artifactId>
     <version>1.0</version>
+    
+    <!--  OUTPUT  -->
+    <name>TSP Solver</name>
+	<url>https://github.com/Humbertda/TSP-SOLVER</url>
+	<packaging>jar</packaging>
 
 	<properties>
 		<!-- Use the latest version whenever possible. -->
 		<jackson.version>2.4.4</jackson.version>
 		<janusproject.version>2.0.4.0</janusproject.version>
 		<log4j.version>2.7</log4j.version>
+		<javafx.version>2.2</javafx.version>
+		<maven-dependency-plugin.version>2.5.1</maven-dependency-plugin.version>
 	</properties>
 
     <build>
         <plugins>
+        
+        <!-- download source code in Eclipse, best practice -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>false</downloadJavadocs>
+				</configuration>
+			</plugin>
+        
+        <!-- Set a JDK compiler level -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -25,6 +45,46 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            
+        <!-- Make this jar executable -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+				  <!-- DO NOT include log4j.xml file in your Jar -->
+				  <excludes>
+					<exclude>**/log4j.xml</exclude>
+				  </excludes>
+				  <archive>
+					<manifest>
+						<!-- Jar file entry point -->
+						<mainClass>com.humbertdany.sarl.tsp.ui.mainui.MainUI</mainClass>
+					</manifest>
+				  </archive>
+				</configuration>
+			</plugin>
+           
+         <!-- Copy project dependency -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>${maven-dependency-plugin.version}</version>
+				<executions>
+				  <execution>
+					<id>copy-dependencies</id>
+					<phase>package</phase>
+					<goals>
+						<goal>copy-dependencies</goal>
+					</goals>
+					<configuration>
+					  <!-- exclude junit, we need runtime dependency only -->
+					  <includeScope>runtime</includeScope>
+					  <outputDirectory>${project.build.directory}/dependency-jars/</outputDirectory>
+					</configuration>
+				  </execution>
+				</executions>
+			</plugin>
+           
         </plugins>
     </build>
 

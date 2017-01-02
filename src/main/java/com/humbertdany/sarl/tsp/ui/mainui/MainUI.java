@@ -51,7 +51,7 @@ public class MainUI extends Application {
 				    controller.onWebviewReady(() -> {
 					    try {
 						    final TspProblemReader fr = new TspProblemReader();
-						    controller.newGraphSelected(fr.readFromString(TspCommonLibrary.BERLIN_52));
+						    controller.newGraphSelected(fr.readFromString(TspCommonLibrary.EASY_CHALLENGE));
 						    controller.enterSolverMode(controller.getTspSolverLibrary().solverAcoSarl);
 					    } catch (ParsingException e) {
 						    logError(e.getMessage());

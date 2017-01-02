@@ -10,14 +10,16 @@ import com.humbertdany.sarl.tsp.tspgraph.lib.TspProblem;
 import com.humbertdany.sarl.tsp.ui.tsppopup.TsplibListItem;
 
 public class SarlTspSolveTest extends ATest {
+	
+	private static final boolean TRIGGER_DEBUG_SARL = false;
 
 	public static void main(String[] args){
 		AcoParameters testParams = AcoParameters.buildDefault();
 		testParams.setMsBetweenTick(0);
 		AntColonyTspSolver solver = new AntColonyTspSolver(runnable -> {
 			runnable.run();
-		}, testParams);
-		TspGraph graph = TsplibListItem.fromTspProblem(new TspProblem("Sarl Aco Test", TspCommonLibrary.BERLIN_52)).generateGraph();
+		}, testParams, TRIGGER_DEBUG_SARL);
+		TspGraph graph = TsplibListItem.fromTspProblem(new TspProblem("Sarl Aco Test", TspCommonLibrary.EASY_CHALLENGE)).generateGraph();
 		solver.onSolverDone(new SolverObserver(){
 			@Override
 			public void onTspProblemSolved() {
@@ -29,7 +31,7 @@ public class SarlTspSolveTest extends ATest {
 			}
 			@Override
 			public void onNewBestPath(List<TspVertex> flow, double cost) {
-				// log("New best cost " + cost); 
+				log("New best cost " + cost); 
 			}
 		});
 		solver.startSolving(graph);

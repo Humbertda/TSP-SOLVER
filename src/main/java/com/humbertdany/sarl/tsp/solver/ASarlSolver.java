@@ -1,7 +1,6 @@
 package com.humbertdany.sarl.tsp.solver;
 
 import com.humbertdany.sarl.tsp.core.utils.Runner;
-import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener;
 import com.humbertdany.sarl.tsp.solver.generic.NewGraphState;
 import com.humbertdany.sarl.tsp.solver.generic.StartSolvingEvent;
 import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent;
@@ -37,6 +36,7 @@ abstract public class ASarlSolver extends ATspSolver implements EnvironmentListe
 
 	final public void setEventSpace(EventSpace defaultLauncherSpace){
 		this.defaultLauncherSpace = defaultLauncherSpace;
+		mainEventSpaceReceived();
 	}
 
 	final public UUID getUUID() {
@@ -52,6 +52,13 @@ abstract public class ASarlSolver extends ATspSolver implements EnvironmentListe
 		this.graph = graph;
 		verifyGraph(this.graph);
 		startSarlSolving();
+	}
+	
+	@Override
+	final public void stopSolving() {
+		if(getDefaultSpace() != null){
+			getDefaultSpace().emit(new StopSolvingEvent());
+		}
 	}
 
 	@Override
@@ -84,5 +91,6 @@ abstract public class ASarlSolver extends ATspSolver implements EnvironmentListe
 
 	abstract protected void startSarlSolving();
 	abstract protected void verifyGraph(TspGraph graph);
+	abstract protected void mainEventSpaceReceived();
 
 }

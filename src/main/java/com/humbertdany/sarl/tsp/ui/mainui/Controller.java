@@ -22,6 +22,9 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Worker.State;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.util.Duration;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -58,6 +61,10 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	private WebEngine webEngine;
 
 	private JsApplication jsApp;
+	
+	private double bestCostSoFar = 0.0;
+	
+	private List<TspVertex> bestRunSoFar = new ArrayList<>(); 
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
@@ -92,6 +99,15 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 				}
 			}
 		});
+		
+		Timeline secondUpdater = new Timeline();
+		secondUpdater.getKeyFrames().add(
+				new KeyFrame(Duration.millis(100),  event -> {
+					statusLabel.setText(getStatusText());
+				})
+		); 
+		secondUpdater.setCycleCount(Timeline.INDEFINITE);
+		secondUpdater.play();
 
 		// ListView generation
 		final ObservableList<ATspSolver> list = FXCollections.observableArrayList();
@@ -237,21 +253,25 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		}
 
 		public void newBestPath(final List<TspVertex> vertices){
-			try {
-				int counter = 0;
-				StringBuilder sb = new StringBuilder();
-				sb.append("[");
-				for(TspVertex v : vertices){
-					sb.append(mapper.writeValueAsString(v));
-					if(counter != vertices.size()-1){
-						sb.append(", ");
+			if(vertices != null){
+				try {
+					int counter = 0;
+					StringBuilder sb = new StringBuilder();
+					sb.append("[");
+					for(TspVertex v : vertices){
+						sb.append(mapper.writeValueAsString(v));
+						if(counter != vertices.size()-1){
+							sb.append(", ");
+						}
+						counter++;
 					}
-					counter++;
+					sb.append("]");
+					webEngine.executeScript("newBestPath('" + sb.toString() +"')");
+				} catch (JsonProcessingException e) {
+					logError(e.getMessage());
 				}
-				sb.append("]");
-				webEngine.executeScript("newBestPath('" + sb.toString() +"')");
-			} catch (JsonProcessingException e) {
-				logError(e.getMessage());
+			} else {
+				webEngine.executeScript("newBestPath('[]')");
 			}
 		}
 
@@ -354,6 +374,9 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 		if(solver != null){
 			tspGraph.offGraphChange(solver);
 			solver.stopSolving();
+			bestCostSoFar = 0.0;
+			bestRunSoFar = null;
+			jsApp.newBestPath(bestRunSoFar);
 		}
 	}
 
@@ -374,8 +397,17 @@ public class Controller extends JfxController implements PopupObserver, SolverOb
 	
 	@Override
 	public void onNewBestPath(List<TspVertex> flow, final double cost){
-		statusLabel.setText("Best run so far: " + cost);
-		jsApp.newBestPath(flow);
+		bestCostSoFar = cost;
+		bestRunSoFar = flow;
+		jsApp.newBestPath(bestRunSoFar);
+	}
+	
+	private String getStatusText(){
+		if(solver != null){
+			return solver.getSolverName() + " > " + solver.getCurrentStatusInfo() + " | " + "Best run so far: " + bestCostSoFar; 
+		} else {
+			return "No solver selected yet."; 
+		}
 	}
 
 	public void openWebviewDebugger(){

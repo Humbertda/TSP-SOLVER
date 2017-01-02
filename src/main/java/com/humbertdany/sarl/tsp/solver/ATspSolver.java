@@ -33,7 +33,8 @@ abstract public class ATspSolver implements GraphObserver<TspGraph> {
 		return this.getSolverName() == null ? "Null" : this.getSolverName();
 	}
 
-	protected abstract String getSolverName();
+	public abstract String getSolverName();
+	public abstract String getCurrentStatusInfo();
 
 	// Solving process
 
