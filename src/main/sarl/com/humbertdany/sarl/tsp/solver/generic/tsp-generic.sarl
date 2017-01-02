@@ -1,14 +1,13 @@
 package com.humbertdany.sarl.tsp.solver.generic
 
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph
-import com.humbertdany.sarl.tsp.solver.aco.EnvironmentListener
 import io.sarl.core.Initialize
 import com.humbertdany.sarl.tsp.solver.ASarlSolver
 import io.sarl.core.DefaultContextInteractions
-import javafx.application.Platform
 import java.util.ArrayList 
 import java.util.List
 import com.humbertdany.sarl.tsp.tspgraph.TspVertex
+import com.humbertdany.sarl.tsp.solver.EnvironmentListener
 
 event StopSolvingEvent {
 }

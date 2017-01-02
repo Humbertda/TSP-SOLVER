@@ -5,31 +5,40 @@ import com.humbertdany.sarl.tsp.core.params.ApplicationParametersObserver;
 import com.humbertdany.sarl.tsp.core.ui.MAnchorPane;
 import com.humbertdany.sarl.tsp.core.utils.Runner;
 import com.humbertdany.sarl.tsp.solver.ASarlSolver;
+import com.humbertdany.sarl.tsp.solver.EnvironmentListener;
+import com.humbertdany.sarl.tsp.solver.aco.listener.SarlAcoListener;
 import com.humbertdany.sarl.tsp.solver.aco.params.AcoParameters;
 import com.humbertdany.sarl.tsp.solver.aco.sarl.Launcher;
 import com.humbertdany.sarl.tsp.solver.aco.sarl.NewTspProblemParameters;
+import com.humbertdany.sarl.tsp.solver.aco.sarl.SarlAcoProcessUpdate;
 import com.humbertdany.sarl.tsp.solver.aco.ui.AcoGuiController;
 import com.humbertdany.sarl.tsp.solver.aco.utils.AcoTspEdgeData;
-import com.humbertdany.sarl.tsp.solver.generic.StopSolvingEvent;
 import com.humbertdany.sarl.tsp.tspgraph.TspEdgeData;
 import com.humbertdany.sarl.tsp.tspgraph.TspGraph;
-import com.humbertdany.sarl.tsp.tspgraph.TspVertex;
 import com.humbertdany.sarl.tsp.tspgraph.VertexInfo;
 import io.janusproject.Boot;
 import io.janusproject.util.LoggerCreator;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
-public class AntColonyTspSolver extends ASarlSolver implements ApplicationParametersObserver<AcoParameters>, EnvironmentListener {
+public class AntColonyTspSolver extends ASarlSolver implements ApplicationParametersObserver<AcoParameters>, EnvironmentListener, SarlAcoListener {
 	
 	private AcoParameters parameters;
-
-	public AntColonyTspSolver(Runner<Runnable> r, AcoParameters p){
+	
+	private int currentTick = 0;
+	
+	private boolean isTesting;
+	
+	public AntColonyTspSolver(Runner<Runnable> r, AcoParameters p, boolean isTesting){
 		super(r);
+		this.isTesting = isTesting;
 		parameters = p;
 		parameters.watchParametersChange(this);
+	}
+
+	public AntColonyTspSolver(Runner<Runnable> r, AcoParameters p){
+		this(r, p, false); 
 	}
 	
 	public AntColonyTspSolver(Runner<Runnable> r){
@@ -62,7 +71,7 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 	}
 
 	@Override
-	protected String getSolverName() {
+	public String getSolverName() {
 		return "SARL AcoSolver";
 	}
 
@@ -86,17 +95,11 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 			Boot.startJanus(
 					(Class) null,
 					Launcher.class,
-					this
+					this, 
+					this.isTesting
 			);
 		} catch (Exception e) {
 			System.exit(-1);
-		}
-	}
-
-	@Override
-	final public void stopSolving() {
-		if(getDefaultSpace() != null){
-			getDefaultSpace().emit(new StopSolvingEvent());
 		}
 	}
 
@@ -106,6 +109,23 @@ public class AntColonyTspSolver extends ASarlSolver implements ApplicationParame
 				e.setData(new AcoTspEdgeData(this.parameters));
 			}
 		}
+	}
+
+	@Override
+	public void onNewTick(int tickNumber) {
+		currentTick = tickNumber;
+	}
+
+	@Override
+	protected void mainEventSpaceReceived() {
+		SarlAcoProcessUpdate evt = new SarlAcoProcessUpdate();
+		evt.obs = this;
+		this.getDefaultSpace().emit(evt);
+	}
+
+	@Override
+	public String getCurrentStatusInfo() {
+		return "Current Tick: " + currentTick + " ";
 	}
 
 

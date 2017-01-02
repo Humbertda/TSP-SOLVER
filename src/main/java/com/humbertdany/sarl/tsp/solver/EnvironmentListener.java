@@ -1,4 +1,4 @@
-package com.humbertdany.sarl.tsp.solver.aco;
+package com.humbertdany.sarl.tsp.solver;
 
 import java.util.List;
 

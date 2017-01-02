@@ -29,7 +29,7 @@ public class AntColonySolverTester extends ATspSolver {
 	}
 
 	@Override
-	protected String getSolverName() {
+	public String getSolverName() {
 		return "Tester";
 	}
 
@@ -59,5 +59,10 @@ public class AntColonySolverTester extends ATspSolver {
 	@Override
 	public void graphUpdated(TspGraph g) {
 		log("A new Graph State has been defined (new city, new path, etc.), it is now ! \n" + g.toString());
+	}
+
+	@Override
+	public String getCurrentStatusInfo() {
+		return "There are no info for the Tester";
 	}
 }
